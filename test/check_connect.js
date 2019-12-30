@@ -11,12 +11,17 @@ const trmnl = readline.createInterface({
   output: process.stdout
 });
 
-const symbolReadList = 
-   ['SENSORS.variable1',
-    'SCREENS.variable2',
-    'SCREENS.variable3',
-    'SENSORS.variable4',
-    'SENSORS.variable5'];
+const symbolReadList = [
+  {'name' : 'SENSORS.variable1'},
+  {'name' : 'SCREENS.variable2'},
+  {'name' : 'SCREENS.variable3'},
+  {'name' : 'SENSORS.variable4'},
+  {'name' : 'SENSORS.variable5'}
+];
+const symbolReadMultiList = [
+  [{'name' : 'SENSORS.multivar1'},{'name' : 'SENSORS.multivar2'}],
+  [{'name' : 'LIGHTS.multivar1'},{'name' : 'LIGHTS.multivar2'},{'name' : 'LIGHTS.multivar3'}]
+]
 const symbolWriteList = [
   {'name' : 'LIGHTS.switch01', 'value' : 1 },
   {'name' : 'LIGHTS.switch01', 'value' : 0 },
@@ -25,6 +30,7 @@ const symbolWriteList = [
 ]
 
 let symbolReadIdx = 0;
+let symbolReadMultiIdx = 0;
 let symbolWriteIdx = 0;
 
 var waitForCommand = function () {
@@ -47,11 +53,14 @@ var waitForCommand = function () {
             timeout: 5000
         }
 
-                if (answer.endsWith('?')) {
-          console.log('adsa ?      -- node-ads-api help function\n' +
-                      'adsa info   -- get plc info\n' +
-                      'adsa state  -- get plc state\n' +
-                      'adsa symbol -- get plc symbol list\n\n');
+        if (answer.endsWith('?')) {
+          console.log('adsa ?          -- node-ads-api help function\n' +
+                      'adsa info       -- get plc info\n' +
+                      'adsa state      -- get plc state\n' +
+                      'adsa symbol     -- get plc symbol list\n' +
+                      'adsa read       --\n' +
+                      'adsa readmulti  --\n' +
+                      'adsa write      --\n');
         } else if (answer.endsWith('info')) {
           console.log('command: ADS-API device info\n');
 
@@ -122,14 +131,15 @@ var waitForCommand = function () {
         } else if (answer.endsWith('read')) {
           console.log('command: ADS-API READ SYMBOL');
 
+          let symbol = symbolReadList[symbolReadIdx];
+            
+          Object.defineProperty(symbol, 'symname', Object.getOwnPropertyDescriptor(symbol, 'name'));
+          delete symbol['name'];
+
+          if (++symbolReadIdx == 5) symbolReadIdx = 0;
+
           let hrstart = process.hrtime();
           let client = ads.connect(options, function() {
-
-            let symbol = {
-              'symname' : symbolReadList[symbolReadIdx++]
-            }
-
-            if (symbolReadIdx == 5) symbolReadIdx = 0;
 
             this.read(symbol, (err, data) => {
               let hrend = process.hrtime(hrstart);
@@ -150,10 +160,45 @@ var waitForCommand = function () {
               console.error('timeout : ' + err);
           })
  
+        } else if (answer.endsWith('readmulti')) {
+          console.log('command: ADS-API READ MULTIPLE SYMBOLS');
+          let symbols = symbolReadMultiList[symbolReadMultiIdx];
+          //let symbols = symbolReadMultiList[0];
+            
+          for (let i = 0; i < symbols.length; i++) {
+            let symbol = symbols[i];
+
+            Object.defineProperty(symbol, 'symname', Object.getOwnPropertyDescriptor(symbol, 'name'));
+            delete symbol['name'];
+          }
+          
+
+          if (++symbolReadMultiIdx == symbolReadMultiList.length) symbolReadMultiIdx = 0;
+
+          let hrstart = process.hrtime();
+          let client = ads.connect(options, function() {
+
+            this.multiRead(symbols, (err, data) => {
+              let hrend = process.hrtime(hrstart);
+
+              if (err) {
+                console.log(err)
+              }
+  
+              console.log(data);
+              console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
+            });
+          });
+          client.on('error', (err) => {
+            console.error('error :' + err);
+          });
+          client.on('timeout', (err) => {
+            console.error('timeout : ' + err);
+          })
         } else if (answer.endsWith('write')) {
           console.log('command: ADS-API WRITE SYMBOL');
 
-          //let hrstart = process.hrtime();
+          let hrstart = process.hrtime();
           let client = ads.connect(options, function() {
 
             let symbol = {
@@ -164,14 +209,14 @@ var waitForCommand = function () {
             if (++symbolWriteIdx == 4) symbolWriteIdx = 0;
 
             this.write(symbol, (err, data) => {
-              //let hrend = process.hrtime(hrstart);
+              let hrend = process.hrtime(hrstart);
 
               if (err) {
                 console.log(err)
               }
   
               console.log(data);
-             // console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
+              console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
             });
           });
   
@@ -201,11 +246,13 @@ var waitForCommand = function () {
         }
         
 		if (answer.endsWith('?')) {
-          console.log('bkhf ?      -- beckhoff help function\n' +
-                      'bkhf info   -- get plc info\n' +
-                      'bkhf state  -- get plc state\n' +
-                      'bkhf symbol -- get plc symbol list\n' + 
-                      'bkhf read   -- get value of plc symbol\n');
+          console.log('bkhf ?          -- beckhoff help function\n' +
+                      'bkhf info       -- get plc info\n' +
+                      'bkhf state      -- get plc state\n' +
+                      'bkhf symbol     -- get plc symbol list\n' + 
+                      'bkhf read       -- get plc symbol value\n' +
+                      'bkhf readmulti  -- get multiple plc symbol values\n' +
+                      'bkhf write      -- write plc symbol value');
         
         } else if (answer.endsWith('info')) {
           console.log('command: BECKHOFF DEVICE INFO');
@@ -214,6 +261,7 @@ var waitForCommand = function () {
           beckhoff.settings.local = settings.local;
           beckhoff.settings.plc = settings.plc;
           beckhoff.settings.develop.verbose = false;
+          beckhoff.settings.develop.debug = false;
           
           let hrstart = process.hrtime();
           beckhoff.getPlcInfo((data) => {
@@ -230,6 +278,7 @@ var waitForCommand = function () {
           beckhoff.settings.local = settings.local;
           beckhoff.settings.plc = settings.plc;
           beckhoff.settings.develop.verbose = false;
+          beckhoff.settings.develop.debug = false;
 
           let hrstart = process.hrtime();
           beckhoff.getPlcState((data) => {
@@ -245,9 +294,11 @@ var waitForCommand = function () {
           beckhoff.settings.local = settings.local;
           beckhoff.settings.plc = settings.plc;
           beckhoff.settings.develop.verbose = false;
+          beckhoff.settings.develop.debug = false;
           
           beckhoff.getPlcSymbols((data) => {
-            console.log(JSON.stringify(data));
+            //console.log(JSON.stringify(data));
+            console.log('OK - ' + data.length)
           });
         } else if (answer.endsWith('read')) {
           console.log('command: BECKHOFF READ SYMBOL');
@@ -255,13 +306,11 @@ var waitForCommand = function () {
           beckhoff.settings.local = settings.local;
           beckhoff.settings.plc = settings.plc;
           beckhoff.settings.develop.verbose = false;
+          beckhoff.settings.develop.debug = false;
 
-          let symbol = {
-            'name'  : symbolReadList[symbolReadIdx++],
-            'value' : ''
-          }
-
-          if (symbolReadIdx == 5) symbolReadIdx = 0;
+          let symbol = symbolReadList[symbolReadIdx];
+          //let symbol = symbolReadList[0];
+          if (++symbolReadIdx == symbolReadList.length) symbolReadIdx = 0;
 
           let hrstart = process.hrtime();
           beckhoff.readPlcData(symbol, (data) => {
@@ -270,19 +319,35 @@ var waitForCommand = function () {
             console.log(JSON.stringify(data));
             console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
           });
+        } else if (answer.endsWith('readmulti')) {
+          console.log('command: BECKHOFF READ MULTIPLE SYMBOLS');
+          beckhoff.settings.remote = settings.remote;
+          beckhoff.settings.local = settings.local;
+          beckhoff.settings.plc = settings.plc;
+          beckhoff.settings.develop.verbose = false;
+          beckhoff.settings.develop.debug = false;
+
+          let symbols = symbolReadMultiList[symbolReadMultiIdx];
+          //let symbols = symbolReadMultiList[0];
+          if (++symbolReadMultiIdx == symbolReadMultiList.length) symbolReadMultiIdx = 0;
+
+          let hrstart = process.hrtime();
+          beckhoff.readPlcData(symbols, (data) => {
+            let hrend = process.hrtime(hrstart);
+
+            console.log(JSON.stringify(data));
+            console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
+          });
+
         } else if (answer.endsWith('write')) {
           console.log('command: BECKHOFF WRITE SYMBOL');
           beckhoff.settings.remote = settings.remote;
           beckhoff.settings.local = settings.local;
           beckhoff.settings.plc = settings.plc;
-          beckhoff.settings.develop.verbose = true;
+          //beckhoff.settings.develop.verbose = true;
 
-          let symbol = {
-            'name' : symbolWriteList[symbolWriteIdx].name,
-            'value': symbolWriteList[symbolWriteIdx].value 
-          }
-
-          if (++symbolWriteIdx == 4) symbolWriteIdx = 0;
+          let symbol = symbolWriteList[symbolWriteIdx];
+          if (++symbolWriteIdx == symbolWriteList.length) symbolWriteIdx = 0;
 
           let hrstart = process.hrtime();
           beckhoff.writePlcData(symbol, (data) => {

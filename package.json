@@ -1,11 +1,17 @@
 {
   "name": "node-beckhoff",
-  "version": "0.0.1",
+  "version": "0.5.0",
   "description": "AMS/ADS implementation for beckhoff PLCs",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "main": "lib/beckhoff.js",
+  "keywords": [
+    "beckhoff",
+    "plc",
+    "protocol",
+    "api"
+  ],
+  "engines": {
+    "node": ">=0.10"
   },
   "author": "Jan Van Belle",
-  "license": "ISC"
+  "license": "GPL"
 }
