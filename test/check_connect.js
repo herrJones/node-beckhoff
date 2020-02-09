@@ -1,32 +1,34 @@
 'use strict'
 
 const ads = require('node-ads');
-//const ads = require('./node-ads-api');
-const beckhoff = require('../lib/beckhoff');
 const readline = require("readline");
 const fs = require('fs');
+
+const beckhoff = require('../lib/beckhoff');
+
 
 const trmnl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-const symbolReadList = [
-  {'name' : 'SENSORS.variable1'},
-  {'name' : 'SCREENS.variable2'},
-  {'name' : 'SCREENS.variable3'},
-  {'name' : 'SENSORS.variable4'},
-  {'name' : 'SENSORS.variable5'}
-];
+const symbolReadList = 
+   [{'name' : 'SENSORS.temp_v0_badkamer'},
+    {'name' : 'SCREENS.scrauto_v2_bureau'},
+    {'name' : 'SCREENS.scrpos_v2_bureau'},
+    {'name' : 'SENSORS.temp_v2_badkamer'},
+    {'name' : 'SENSORS.wct_v2_bureau_c11'}];
 const symbolReadMultiList = [
-  [{'name' : 'SENSORS.multivar1'},{'name' : 'SENSORS.multivar2'}],
-  [{'name' : 'LIGHTS.multivar1'},{'name' : 'LIGHTS.multivar2'},{'name' : 'LIGHTS.multivar3'}]
+  [{'name' : 'SENSORS.light_tuin_directval'},{'name' : 'SENSORS.light_voordeur_directval'}],
+  [{'name' : 'SENSORS.dirtemp_v0_badkamer'},{'name' : 'SENSORS.dirtemp_v0_berging'},{'name' : 'SENSORS.dirtemp_v0_buiten'}],
+  [{'name' : 'SCREENS.scrpos_v1_k_links'},{'name' : 'SCREENS.scrpos_v1_k_midden'},{'name' : 'SCREENS.scrpos_v1_k_rechts'}]
 ]
 const symbolWriteList = [
-  {'name' : 'LIGHTS.switch01', 'value' : 1 },
-  {'name' : 'LIGHTS.switch01', 'value' : 0 },
-  {'name' : 'LIGHTS.switch02', 'value' : 1 },
-  {'name' : 'LIGHTS.switch02', 'value' : 0 }
+  {'name' : 'DOMOTICS.LGT_V2_TECHNISCH', 'value' : 1 },
+  {'name' : 'DOMOTICS.LGT_V2_TECHNISCH', 'value' : 0 },
+  {'name' : 'DOMOTICS.dim_v1_living', 'value' : 35 },
+  {'name' : 'DOMOTICS.dim_v1_living', 'value' : 100 },
+  {'name' : 'DOMOTICS.dim_v1_living', 'value' : 0 }
 ]
 
 let symbolReadIdx = 0;
@@ -45,12 +47,12 @@ var waitForCommand = function () {
   
       } else if (answer.startsWith('adsa')) {
         let options = {
-            host: '10.0.0.1',
-            amsNetIdTarget: '10.42.129.1.1.1',
-            amsNetIdSource: '127.0.0.1.1.1',
+            host: '10.81.1.44',
+            amsNetIdTarget: '5.42.129.71.1.1',
+            amsNetIdSource: '10.81.1.47.1.1',
             amsPortTarget: 851,
             verbose: 2, 
-            timeout: 5000
+            timeout: 15000
         }
 
         if (answer.endsWith('?')) {
@@ -232,20 +234,20 @@ var waitForCommand = function () {
       } else if (answer.startsWith('bkhf')) {
         let settings = {
           plc : {
-            ip     : '10.0.0.1',
+            ip     : '10.81.1.44',
             port   : 48898,
           },
           remote : {  
-            netid  : '10.42.129.1.1.1',
+            netid  : '5.42.129.71.1.1',
+            //'netid'   : '10.81.1.47.1.1',
             port   : 851
           },
           local : {
-            netid  : '127.0.0.1.1.1',
+            netid  : '10.81.1.47.1.1',
             port   : 32905
           }
         }
-        
-		if (answer.endsWith('?')) {
+        if (answer.endsWith('?')) {
           console.log('bkhf ?          -- beckhoff help function\n' +
                       'bkhf info       -- get plc info\n' +
                       'bkhf state      -- get plc state\n' +
@@ -324,8 +326,8 @@ var waitForCommand = function () {
           beckhoff.settings.remote = settings.remote;
           beckhoff.settings.local = settings.local;
           beckhoff.settings.plc = settings.plc;
-          beckhoff.settings.develop.verbose = false;
-          beckhoff.settings.develop.debug = false;
+          beckhoff.settings.develop.verbose = true;
+          beckhoff.settings.develop.debug = true;
 
           let symbols = symbolReadMultiList[symbolReadMultiIdx];
           //let symbols = symbolReadMultiList[0];
@@ -357,7 +359,6 @@ var waitForCommand = function () {
             console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
           });
         }
-		
       } else if (answer == "quit") {
         console.log('closing down');
         trmnl.close();
