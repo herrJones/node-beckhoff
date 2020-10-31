@@ -1,9 +1,11 @@
 'use strict';
 
 const readline = require('readline');
+const ip = require('ip');
 //const fs = require('fs');
 
-const ads = require('node-ads');
+//const ads = require('node-ads');
+const ads = require('./node-ads-api');
 const BeckhoffClient = require('../lib/beckhoff');
 
 const beckhoff = new BeckhoffClient();
@@ -51,7 +53,7 @@ const waitForCommand = function () {
       const options = {
         host: '10.81.5.26',
         amsNetIdTarget: '5.42.129.71.1.1',
-        amsNetIdSource: '10.81.1.63.1.1',
+        amsNetIdSource: ip.address() + '.1.1',
         amsPortTarget: 851,
         verbose: 2, 
         timeout: 15000
@@ -261,12 +263,10 @@ const waitForCommand = function () {
       } else if (answer.endsWith('info')) {
         console.log('command: BECKHOFF DEVICE INFO');
         
-        beckhoff.settings.remote = settings.remote;
-        beckhoff.settings.local = settings.local;
-        beckhoff.settings.plc = settings.plc;
-        beckhoff.settings.develop.verbose = false;
-        beckhoff.settings.develop.debug = false;
-        
+        settings.develop.verbose = false;
+        settings.develop.debug = false;
+        beckhoff.settings = settings;
+
         const hrstart = process.hrtime();
         beckhoff.getPlcInfo((data) => {
           const hrend = process.hrtime(hrstart);
@@ -278,11 +278,9 @@ const waitForCommand = function () {
       } else if (answer.endsWith('state')) {
         console.log('command: BECKHOFF DEVICE STATE');
           
-        beckhoff.settings.remote = settings.remote;
-        beckhoff.settings.local = settings.local;
-        beckhoff.settings.plc = settings.plc;
-        beckhoff.settings.develop.verbose = false;
-        beckhoff.settings.develop.debug = false;
+        settings.develop.verbose = false;
+        settings.develop.debug = false;
+        beckhoff.settings = settings;
 
         const hrstart = process.hrtime();
         beckhoff.getPlcState((data) => {
@@ -294,23 +292,21 @@ const waitForCommand = function () {
           
       } else if (answer.endsWith('symbol')) {
         console.log('command: BECKHOFF SYMBOL LIST');
-        beckhoff.settings.remote = settings.remote;
-        beckhoff.settings.local = settings.local;
-        beckhoff.settings.plc = settings.plc;
-        beckhoff.settings.develop.verbose = false;
-        beckhoff.settings.develop.debug = false;
-          
+
+        settings.develop.verbose = false;
+        settings.develop.debug = false;
+        beckhoff.settings = settings; 
+
         beckhoff.getPlcSymbols((data) => {
           //console.log(JSON.stringify(data));
           console.log('OK - ' + data.length);
         });
       } else if (answer.endsWith('read')) {
         console.log('command: BECKHOFF READ SYMBOL');
-        beckhoff.settings.remote = settings.remote;
-        beckhoff.settings.local = settings.local;
-        beckhoff.settings.plc = settings.plc;
-        beckhoff.settings.develop.verbose = false;
-        beckhoff.settings.develop.debug = false;
+
+        settings.develop.verbose = false;
+        settings.develop.debug = false;
+        beckhoff.settings = settings;
 
         const symbol = symbolReadList[symbolReadIdx];
         //let symbol = symbolReadList[0];
@@ -325,11 +321,10 @@ const waitForCommand = function () {
         });
       } else if (answer.endsWith('readmulti')) {
         console.log('command: BECKHOFF READ MULTIPLE SYMBOLS');
-        beckhoff.settings.remote = settings.remote;
-        beckhoff.settings.local = settings.local;
-        beckhoff.settings.plc = settings.plc;
-        beckhoff.settings.develop.verbose = true;
-        beckhoff.settings.develop.debug = true;
+
+        settings.develop.verbose = false;
+        settings.develop.debug = false;
+        beckhoff.settings = settings;
 
         const symbols = symbolReadMultiList[symbolReadMultiIdx];
         //let symbols = symbolReadMultiList[0];
@@ -345,10 +340,10 @@ const waitForCommand = function () {
 
       } else if (answer.endsWith('write')) {
         console.log('command: BECKHOFF WRITE SYMBOL');
-        beckhoff.settings.remote = settings.remote;
-        beckhoff.settings.local = settings.local;
-        beckhoff.settings.plc = settings.plc;
-        //beckhoff.settings.develop.verbose = true;
+
+        settings.develop.verbose = false;
+        settings.develop.debug = false;
+        beckhoff.settings = settings;
 
         const symbol = symbolWriteList[symbolWriteIdx];
         if (++symbolWriteIdx == symbolWriteList.length) symbolWriteIdx = 0;
@@ -374,5 +369,6 @@ waitForCommand();
   
 trmnl.on('close', function() {
   console.log('\nBYE BYE !!!');
+  beckhoff.destroy();
   process.exit(0);
 });

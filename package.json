@@ -20,12 +20,14 @@
   },
   "dependencies": {
     "events": "^3.1.0",
+    "ip": "^1.1.5",
     "net": "^1.0.2",
+    "node-ip": "^0.1.2",
     "safe-buffer": "^5.2.1",
     "sqlite3": "^5.0.0"
   },
   "devDependencies": {
-    "eslint": "^7.12.0"
+    "eslint": "^7.12.1"
   },
   "bugs": {
     "url": "https://github.com/herrJones/node-beckhoff/issues"
