@@ -247,8 +247,12 @@ const waitForCommand = function () {
           port   : 851
         },
         local : {
-          netid  : '10.81.1.63.1.1',
+          netid  : ip.address() + '.1.1',
           port   : 32905
+        },
+        develop : {
+          verbose : false,
+          debug   : false
         }
       };
       if (answer.endsWith('?')) {
