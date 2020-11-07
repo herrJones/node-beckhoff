@@ -59,14 +59,15 @@ const waitForCommand = function () {
         timeout: 15000
       };
 
-      if (answer.endsWith('?')) {
+      if (answer.endsWith('?') || answer.endsWith('help')) {
         console.log('adsa ?          -- node-ads-api help function\n' +
-                      'adsa info       -- get plc info\n' +
-                      'adsa state      -- get plc state\n' +
-                      'adsa symbol     -- get plc symbol list\n' +
-                      'adsa read       --\n' +
-                      'adsa readmulti  --\n' +
-                      'adsa write      --\n');
+                    'adsa help       -- node-ads-api help function\n' +
+                    'adsa info       -- get plc info\n' +
+                    'adsa state      -- get plc state\n' +
+                    'adsa symbol     -- get plc symbol list\n' +
+                    'adsa read       --\n' +
+                    'adsa readmulti  --\n' +
+                    'adsa write      --\n');
       } else if (answer.endsWith('info')) {
         console.log('command: ADS-API device info\n');
 
@@ -255,8 +256,9 @@ const waitForCommand = function () {
           debug   : false
         }
       };
-      if (answer.endsWith('?')) {
+      if (answer.endsWith('?') || (answer.endsWith('help'))) {
         console.log('bkhf ?          -- beckhoff help function\n' +
+                    'bkhf help       -- beckhoff help function\n' +
                     'bkhf info       -- get plc info\n' +
                     'bkhf state      -- get plc state\n' +
                     'bkhf symbol     -- get plc symbol list\n' + 
@@ -313,7 +315,6 @@ const waitForCommand = function () {
         beckhoff.settings = settings;
 
         const symbol = symbolReadList[symbolReadIdx];
-        //let symbol = symbolReadList[0];
         if (++symbolReadIdx == symbolReadList.length) symbolReadIdx = 0;
 
         const hrstart = process.hrtime();
@@ -331,7 +332,6 @@ const waitForCommand = function () {
         beckhoff.settings = settings;
 
         const symbols = symbolReadMultiList[symbolReadMultiIdx];
-        //let symbols = symbolReadMultiList[0];
         if (++symbolReadMultiIdx == symbolReadMultiList.length) symbolReadMultiIdx = 0;
 
         const hrstart = process.hrtime();
