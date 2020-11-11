@@ -1,6 +1,6 @@
 {
   "name": "node-beckhoff",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "AMS/ADS implementation for beckhoff PLCs",
   "main": "lib/beckhoff.js",
   "keywords": [
@@ -27,7 +27,7 @@
     "sqlite3": "^5.0.0"
   },
   "devDependencies": {
-    "eslint": "^7.12.1"
+    "eslint": "^7.13.0"
   },
   "bugs": {
     "url": "https://github.com/herrJones/node-beckhoff/issues"

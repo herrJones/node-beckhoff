@@ -4,8 +4,7 @@ const readline = require('readline');
 const ip = require('ip');
 //const fs = require('fs');
 
-//const ads = require('node-ads');
-const ads = require('./node-ads-api');
+const ads = require('node-ads');
 const BeckhoffClient = require('../lib/beckhoff');
 
 const beckhoff = new BeckhoffClient();
@@ -51,8 +50,8 @@ const waitForCommand = function () {
   
     } else if (answer.startsWith('adsa')) {
       const options = {
-        host: '10.81.5.26',
-        amsNetIdTarget: '5.42.129.71.1.1',
+        host: '10.0.0.1',
+        amsNetIdTarget: '5.40.120.70.1.1',
         amsNetIdSource: ip.address() + '.1.1',
         amsPortTarget: 851,
         verbose: 2, 
@@ -239,12 +238,11 @@ const waitForCommand = function () {
     } else if (answer.startsWith('bkhf')) {
       const settings = {
         plc : {
-          ip     : '10.81.5.26',
+          ip     : '10.0.0.1',
           port   : 48898,
         },
         remote : {  
-          netid  : '5.42.129.71.1.1',
-          //'netid'   : '10.81.1.47.1.1',
+          netid  : '5.40.120.70.1.1',
           port   : 851
         },
         local : {

@@ -14,6 +14,18 @@ The drawback of this is that the application has to restart (or: re-fetch the ba
 
 Handles are stored after first use.
 
+## Commands provided
+* __getPlcInfo__  : read plc version
+* __getPlcState__ : read current plc state 
+* __getPlcSymbols__ : read the list of plc symbols 
+  _-> this step is necessary in order to read and write individual symbols_
+* __readPlcData__ : read the current value of a (list of) specified symbol(s) 
+  _-> multiple symbols allowed_
+* __writePlcData__ : set the value of a specified symbol 
+  _-> multiple symbols not (yet?) allowed_
+
+_Notifications_ are a planned feature
+
 ## Example application
 A sample console application is provided.
 This shows the (different) approach for node-ads users and will help new users get started.
