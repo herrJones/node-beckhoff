@@ -2,7 +2,7 @@
 
 const readline = require('readline');
 const ip = require('ip');
-//const fs = require('fs');
+const settings = require(__dirname + '/settings.json');
 
 const ads = require('node-ads');
 const BeckhoffClient = require('../lib/beckhoff');
@@ -29,17 +29,25 @@ const symbolReadMultiList = [
 const symbolWriteList = [
   {'name' : 'DOMOTICS.LGT_V2_TECHNISCH', 'value' : 1 },
   {'name' : 'DOMOTICS.LGT_V2_TECHNISCH', 'value' : 0 },
-  {'name' : 'DOMOTICS.dim_v1_living', 'value' : 35 },
+  {'name' : 'DOMOTICS.dim_v1_living', 'value' :  35 },
   {'name' : 'DOMOTICS.dim_v1_living', 'value' : 100 },
-  {'name' : 'DOMOTICS.dim_v1_living', 'value' : 0 }
+  {'name' : 'DOMOTICS.dim_v1_living', 'value' :   0 }
+];
+const symbolWriteMultiList = [
+  [{'name' : 'DOMOTICS.dim_v1_living', 'value' : 25},{'name' : 'DOMOTICS.dim_v1_tafel', 'value' : 40}],
+  [{'name' : 'DOMOTICS.dim_v1_living', 'value' : 10},{'name' : 'DOMOTICS.dim_v1_tafel', 'value' : 70},{'name' : 'DOMOTICS.lgt_v1_aanrecht', 'value': 1}],
+  [{'name' : 'DOMOTICS.dim_v1_living', 'value' :  0},{'name' : 'DOMOTICS.dim_v1_tafel', 'value' :  0},{'name' : 'DOMOTICS.lgt_v1_aanrecht', 'value' :0}]
 ];
 
 let symbolReadIdx = 0;
 let symbolReadMultiIdx = 0;
 let symbolWriteIdx = 0;
+let symbolWriteMultiIdx = 0;
 
-const waitForCommand = function () {
-  trmnl.question('beckhoff ADS/AMS command to test (? for help)  ', function(answer) {
+let options = {};
+
+const waitForCommand = async function () {
+  trmnl.question('beckhoff ADS/AMS command to test (? for help)  ', async function(answer) {
     if (answer == '?') {
       console.log('?    -- this help function\n' +
                   'adsa -- test via node-ads-api\n' +
@@ -49,11 +57,11 @@ const waitForCommand = function () {
                   'quit -- close this application\n\n' );
   
     } else if (answer.startsWith('adsa')) {
-      const options = {
-        host: '10.0.0.1',
-        amsNetIdTarget: '5.40.120.70.1.1',
+      options = {
+        host: settings.plc.ip,
+        amsNetIdTarget: settings.remote.netid,
+        amsPortTarget: settings.remote.port,
         amsNetIdSource: ip.address() + '.1.1',
-        amsPortTarget: 851,
         verbose: 2, 
         timeout: 15000
       };
@@ -236,24 +244,27 @@ const waitForCommand = function () {
       }
         
     } else if (answer.startsWith('bkhf')) {
-      const settings = {
+      options = {
         plc : {
-          ip     : '10.0.0.1',
-          port   : 48898,
+          ip      : settings.plc.ip,
+          port    : settings.plc.port,
         },
         remote : {  
-          netid  : '5.40.120.70.1.1',
-          port   : 851
+          netid   : settings.remote.netid,
+          port    : settings.remote.port
         },
         local : {
-          netid  : ip.address() + '.1.1',
-          port   : 32905
+          netid   : ip.address() + '.1.1',
+          port    : settings.local.port
         },
         develop : {
           verbose : false,
           debug   : false
         }
       };
+
+      let hrstart = 0;
+      let hrend = 0;
       if (answer.endsWith('?') || (answer.endsWith('help'))) {
         console.log('bkhf ?          -- beckhoff help function\n' +
                     'bkhf help       -- beckhoff help function\n' +
@@ -267,96 +278,116 @@ const waitForCommand = function () {
       } else if (answer.endsWith('info')) {
         console.log('command: BECKHOFF DEVICE INFO');
         
-        settings.develop.verbose = false;
-        settings.develop.debug = false;
-        beckhoff.settings = settings;
+        options.develop.verbose = false;
+        options.develop.debug = false;
+        beckhoff.settings = options;
 
-        const hrstart = process.hrtime();
-        beckhoff.getPlcInfo((data) => {
-          const hrend = process.hrtime(hrstart);
+        
+        hrstart = process.hrtime();
+        const data = await beckhoff.getPlcInfo(); 
+        hrend = process.hrtime(hrstart);
 
-          console.log(JSON.stringify(data));
-          console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
-        });
+        console.log(JSON.stringify(data));
+        //console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
         
       } else if (answer.endsWith('state')) {
         console.log('command: BECKHOFF DEVICE STATE');
           
-        settings.develop.verbose = false;
-        settings.develop.debug = false;
-        beckhoff.settings = settings;
+        options.develop.verbose = false;
+        options.develop.debug = false;
+        beckhoff.settings = options;
 
-        const hrstart = process.hrtime();
-        beckhoff.getPlcState((data) => {
-          const hrend = process.hrtime(hrstart);
+        hrstart = process.hrtime();
+        const data = await beckhoff.getPlcState(); 
+        hrend = process.hrtime(hrstart);
 
-          console.log(JSON.stringify(data));
-          console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
-        });
+        console.log(JSON.stringify(data));
+        //console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
           
       } else if (answer.endsWith('symbol')) {
         console.log('command: BECKHOFF SYMBOL LIST');
 
-        settings.develop.verbose = false;
-        settings.develop.debug = false;
-        beckhoff.settings = settings; 
+        options.develop.verbose = false;
+        options.develop.debug = false;
+        beckhoff.settings = options; 
 
-        beckhoff.getPlcSymbols((data) => {
-          //console.log(JSON.stringify(data));
-          console.log('OK - ' + data.length);
-        });
+        hrstart = process.hrtime();
+        const data = await beckhoff.getPlcSymbols(); 
+        hrend = process.hrtime(hrstart);
+        //console.log(JSON.stringify(data));
+        console.log('OK - ' + data.length);
+        //console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
+        
       } else if (answer.endsWith('read')) {
         console.log('command: BECKHOFF READ SYMBOL');
 
-        settings.develop.verbose = false;
-        settings.develop.debug = false;
-        beckhoff.settings = settings;
+        options.develop.verbose = false;
+        options.develop.debug = false;
+        beckhoff.settings = options;
 
         const symbol = symbolReadList[symbolReadIdx];
         if (++symbolReadIdx == symbolReadList.length) symbolReadIdx = 0;
 
-        const hrstart = process.hrtime();
-        beckhoff.readPlcData(symbol, (data) => {
-          const hrend = process.hrtime(hrstart);
+        hrstart = process.hrtime();
+        const data = await beckhoff.readPlcData(symbol);
+        hrend = process.hrtime(hrstart);
 
-          console.log(JSON.stringify(data));
-          console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
-        });
+        console.log(JSON.stringify(data));
+        //console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
+        
       } else if (answer.endsWith('readmulti')) {
         console.log('command: BECKHOFF READ MULTIPLE SYMBOLS');
 
-        settings.develop.verbose = false;
-        settings.develop.debug = false;
-        beckhoff.settings = settings;
+        options.develop.verbose = false;
+        options.develop.debug = false;
+        beckhoff.settings = options;
 
         const symbols = symbolReadMultiList[symbolReadMultiIdx];
         if (++symbolReadMultiIdx == symbolReadMultiList.length) symbolReadMultiIdx = 0;
 
-        const hrstart = process.hrtime();
-        beckhoff.readPlcData(symbols, (data) => {
-          const hrend = process.hrtime(hrstart);
+        hrstart = process.hrtime();
+        const data = await beckhoff.readPlcData(symbols); 
+        hrend = process.hrtime(hrstart);
 
-          console.log(JSON.stringify(data));
-          console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
-        });
+        console.log(JSON.stringify(data));
+        //console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
 
       } else if (answer.endsWith('write')) {
         console.log('command: BECKHOFF WRITE SYMBOL');
 
-        settings.develop.verbose = false;
-        settings.develop.debug = false;
-        beckhoff.settings = settings;
+        options.develop.verbose = false;
+        options.develop.debug = false;
+        beckhoff.settings = options;
 
         const symbol = symbolWriteList[symbolWriteIdx];
         if (++symbolWriteIdx == symbolWriteList.length) symbolWriteIdx = 0;
 
-        const hrstart = process.hrtime();
-        beckhoff.writePlcData(symbol, (data) => {
-          const hrend = process.hrtime(hrstart);
+        hrstart = process.hrtime();
+        const data = await beckhoff.writePlcData(symbol); 
+        hrend = process.hrtime(hrstart);
 
-          console.log(JSON.stringify(data));
-          console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
-        });
+        console.log(JSON.stringify(data));
+        
+      } else if (answer.endsWith('writemulti')) {
+        console.log('command: BECKHOFF WRITE MULTIPLE SYMBOL');
+
+        options.develop.verbose = false;
+        options.develop.debug = false;
+        beckhoff.settings = options;
+
+        const symbols = symbolWriteMultiList[symbolWriteMultiIdx];
+        if (++symbolWriteMultiIdx == symbolWriteMultiList.length) symbolWriteMultiIdx = 0;
+
+        hrstart = process.hrtime();
+        const data = await beckhoff.writePlcData(symbols);
+        hrend = process.hrtime(hrstart);
+
+        console.log(JSON.stringify(data));
+
+      }
+
+      if (Array.isArray(hrend)) {
+        console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
       }
     } else if (answer == 'quit') {
       console.log('closing down');
