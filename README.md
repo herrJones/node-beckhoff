@@ -6,13 +6,14 @@ Heavily inspired on the Node.JS implementation of Roccomuso (https://github.com/
 This library aims to be faster in handling read and write requests by caching the handles to the variables.
 The library uses async/await and Promises instead of the basic callbacks, so it's a little easier to read and follow.
 
-The goal is to provide promises on the 'user' side (WIP !)
+The calls exposed to the user side provide Promises
 
 ## Faster handling
 Although implementation is still in javascript, execution speed is gained by storing fixed blocks of data (header) and storing handles in a SQLite database (default choice = in-memory).
 The drawback of this is that the application has to restart (or: re-fetch the basic data) after a PLC code-update. 
 
 Handles are stored after first use.
+When the 
 
 ## Commands provided
 * __getPlcInfo__  : read plc version
@@ -23,6 +24,7 @@ Handles are stored after first use.
   _-> multiple symbols allowed_
 * __writePlcData__ : set the value of a specified symbol 
   _-> multiple symbols not (yet?) allowed_
+* __destroy__ : close connection to th PLC. Free used handles.
 
 _Notifications_ are a planned feature
 
