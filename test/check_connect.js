@@ -30,14 +30,20 @@ const symbolReadMultiList = [
 const symbolWriteList = [
   {'name' : 'DOMOTICS.LGT_V2_TECHNISCH', 'value' : 1 },
   {'name' : 'DOMOTICS.LGT_V2_TECHNISCH', 'value' : 0 },
-  {'name' : 'DOMOTICS.dim_v1_living', 'value' : 35 },
+  {'name' : 'DOMOTICS.dim_v1_living', 'value' :  35 },
   {'name' : 'DOMOTICS.dim_v1_living', 'value' : 100 },
-  {'name' : 'DOMOTICS.dim_v1_living', 'value' : 0 }
+  {'name' : 'DOMOTICS.dim_v1_living', 'value' :   0 }
+];
+const symbolWriteMultiList = [
+  [{'name' : 'DOMOTICS.dim_v1_living', 'value' : 25},{'name' : 'DOMOTICS.dim_v1_tafel', 'value' : 40}],
+  [{'name' : 'DOMOTICS.dim_v1_living', 'value' : 10},{'name' : 'DOMOTICS.dim_v1_tafel', 'value' : 70},{'name' : 'DOMOTICS.lgt_v1_aanrecht', 'value': 1}],
+  [{'name' : 'DOMOTICS.dim_v1_living', 'value' :  0},{'name' : 'DOMOTICS.dim_v1_tafel', 'value' :  0},{'name' : 'DOMOTICS.lgt_v1_aanrecht', 'value' :0}]
 ];
 
 let symbolReadIdx = 0;
 let symbolReadMultiIdx = 0;
 let symbolWriteIdx = 0;
+let symbolWriteMultiIdx = 0;
 
 let options = {};
 
@@ -257,6 +263,9 @@ const waitForCommand = async function () {
           debug   : false
         }
       };
+
+      let hrstart = 0;
+      let hrend = 0;
       if (answer.endsWith('?') || (answer.endsWith('help'))) {
         console.log('bkhf ?          -- beckhoff help function\n' +
                     'bkhf help       -- beckhoff help function\n' +
@@ -274,12 +283,13 @@ const waitForCommand = async function () {
         options.develop.debug = false;
         beckhoff.settings = options;
 
-        const hrstart = process.hrtime();
+        
+        hrstart = process.hrtime();
         const data = await beckhoff.getPlcInfo(); 
-        const hrend = process.hrtime(hrstart);
+        hrend = process.hrtime(hrstart);
 
         console.log(JSON.stringify(data));
-        console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
+        //console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
         
       } else if (answer.endsWith('state')) {
         console.log('command: BECKHOFF DEVICE STATE');
@@ -288,12 +298,12 @@ const waitForCommand = async function () {
         options.develop.debug = false;
         beckhoff.settings = options;
 
-        const hrstart = process.hrtime();
+        hrstart = process.hrtime();
         const data = await beckhoff.getPlcState(); 
-        const hrend = process.hrtime(hrstart);
+        hrend = process.hrtime(hrstart);
 
         console.log(JSON.stringify(data));
-        console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
+        //console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
           
       } else if (answer.endsWith('symbol')) {
         console.log('command: BECKHOFF SYMBOL LIST');
@@ -302,12 +312,12 @@ const waitForCommand = async function () {
         options.develop.debug = false;
         beckhoff.settings = options; 
 
-        const hrstart = process.hrtime();
+        hrstart = process.hrtime();
         const data = await beckhoff.getPlcSymbols(); 
-        const hrend = process.hrtime(hrstart);
+        hrend = process.hrtime(hrstart);
         //console.log(JSON.stringify(data));
         console.log('OK - ' + data.length);
-        console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
+        //console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
         
       } else if (answer.endsWith('read')) {
         console.log('command: BECKHOFF READ SYMBOL');
@@ -319,12 +329,12 @@ const waitForCommand = async function () {
         const symbol = symbolReadList[symbolReadIdx];
         if (++symbolReadIdx == symbolReadList.length) symbolReadIdx = 0;
 
-        const hrstart = process.hrtime();
+        hrstart = process.hrtime();
         const data = await beckhoff.readPlcData(symbol);
-        const hrend = process.hrtime(hrstart);
+        hrend = process.hrtime(hrstart);
 
         console.log(JSON.stringify(data));
-        console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
+        //console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
         
       } else if (answer.endsWith('readmulti')) {
         console.log('command: BECKHOFF READ MULTIPLE SYMBOLS');
@@ -336,12 +346,12 @@ const waitForCommand = async function () {
         const symbols = symbolReadMultiList[symbolReadMultiIdx];
         if (++symbolReadMultiIdx == symbolReadMultiList.length) symbolReadMultiIdx = 0;
 
-        const hrstart = process.hrtime();
+        hrstart = process.hrtime();
         const data = await beckhoff.readPlcData(symbols); 
-        const hrend = process.hrtime(hrstart);
+        hrend = process.hrtime(hrstart);
 
         console.log(JSON.stringify(data));
-        console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
+        //console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
 
       } else if (answer.endsWith('write')) {
         console.log('command: BECKHOFF WRITE SYMBOL');
@@ -353,13 +363,12 @@ const waitForCommand = async function () {
         const symbol = symbolWriteList[symbolWriteIdx];
         if (++symbolWriteIdx == symbolWriteList.length) symbolWriteIdx = 0;
 
-        const hrstart = process.hrtime();
+        hrstart = process.hrtime();
         const data = await beckhoff.writePlcData(symbol); 
-        const hrend = process.hrtime(hrstart);
+        hrend = process.hrtime(hrstart);
 
         console.log(JSON.stringify(data));
-        console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
-        //});
+        
       } else if (answer.endsWith('writemulti')) {
         console.log('command: BECKHOFF WRITE MULTIPLE SYMBOL');
 
@@ -367,15 +376,19 @@ const waitForCommand = async function () {
         options.develop.debug = false;
         beckhoff.settings = options;
 
-        //const symbols = symbolReadMultiList[symbolReadMultiIdx];
-        //if (++symbolReadMultiIdx == symbolReadMultiList.length) symbolReadMultiIdx = 0;
+        const symbols = symbolWriteMultiList[symbolWriteMultiIdx];
+        if (++symbolWriteMultiIdx == symbolWriteMultiList.length) symbolWriteMultiIdx = 0;
 
-        //const hrstart = process.hrtime();
-        //const data = await beckhoff.readPlcData(symbols);
-        //const hrend = process.hrtime(hrstart);
+        hrstart = process.hrtime();
+        const data = await beckhoff.writePlcData(symbols);
+        hrend = process.hrtime(hrstart);
 
-        //console.log(JSON.stringify(data));
-        //console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
+        console.log(JSON.stringify(data));
+
+      }
+
+      if (Array.isArray(hrend)) {
+        console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
       }
     } else if (answer == 'quit') {
       console.log('closing down');
