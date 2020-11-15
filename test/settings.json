@@ -14,5 +14,28 @@
   "develop" : {
     "verbose" : false,
     "debug"   : false
-  }
+  },
+  "readlist" : [ 
+    {"name" : "SENSORS.temp_outside"},
+    {"name" : "SENSORS.temp_inside"},
+    {"name" : "SCREENS.scrpos_big_screen"},
+    {"name" : "LIGHTS.dim_living_room"},
+    {"name" : "SENSORS.contact_front_door"}
+  ],
+  "readlist_multi" :[
+    [{"name" : "SENSORS.temp_outside"},{"name" : "SENSORS.temp_inside"}],
+    [{"name" : "SCREENS.scrpos_big_screen"},{"name" : "LIGHTS.dim_living_room"},{"name" : "SENSORS.contact_front_door"}]
+  ],
+  "writelist" : [
+    {"name" : "LIGHTS.light_outside",   "value" :   1 },
+    {"name" : "LIGHTS.light_outside",   "value" :   0 },
+    {"name" : "LIGHTS.dim_living_room", "value" :  35 },
+    {"name" : "LIGHTS.dim_living_room", "value" : 100 },
+    {"name" : "LIGHTS.dim_living_room", "value" :   0 }
+  ],
+  "writelist_multi" :[
+    [{"name" : "LIGHTS.dim_living_room", "value" : 25},{"name" : "LIGHTS.dim_kitchen", "value" : 40}],
+    [{"name" : "LIGHTS.dim_living_room", "value" : 10},{"name" : "LIGHTS.dim_kitchen", "value" : 70},{"name" : "LIGHTS.lgt_tabletop", "value": 1}],
+    [{"name" : "LIGHTS.dim_living_room", "value" :  0},{"name" : "LIGHTS.dim_kitchen", "value" :  0},{"name" : "LIGHTS.lgt_tabletop", "value" :0}]
+  ]
 }
