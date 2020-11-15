@@ -13,7 +13,7 @@ Although implementation is still in javascript, execution speed is gained by sto
 The drawback of this is that the application has to restart (or: re-fetch the basic data) after a PLC code-update. 
 
 Handles are stored after first use.
-When the 
+When the application terminates, all handles should be cleaned _(unstable for now)_
 
 ## Commands provided
 * __getPlcInfo__  : read plc version
