@@ -33,19 +33,32 @@ tmpSettings.develop.verbose = true;
 tmpSettings.develop.debug = false;
 beckhoff.settings = tmpSettings;
 
-beckhoff.getPlcInfo((data) => {
-  console.log(JSON.stringify(data));
-});
+// fetch plc info
+let data = await beckhoff.getPlcInfo();
+console.log(JSON.stringify(data));
 
-beckhoff.getPlcSymbols((data) => {
-  //console.log(JSON.stringify(data)); -> this will produce quite some output
-  console.log('OK - ' + data.length);
-});
+// fetch all symbols 
+data = beckhoff.getPlcSymbols();
+//console.log(JSON.stringify(data)); -> this will produce quite some output
+console.log('OK - ' + data.length);
 
-const symbol = {
-  name : 'SENSORS.temp_outside'
-}
-beckhoff.readPlcData(symbol, (data) => {
-  console.log(JSON.stringify(data));
-});
+// 
+let symbol = [
+  { name : 'SENSORS.temp_outside' }
+];
+data = beckhoff.readPlcData(symbol);
+console.log(JSON.stringify(data));
+
+symbol = [
+  { name : 'SENSORS.temp_outside' },
+  { name : 'SENSORS.temp_inside' }
+];
+data = beckhoff.readPlcData(symbol);
+console.log(JSON.stringify(data));
+
+symbol = [
+  { name : 'LIGHTS.light_outside', value : 1 }
+];
+data = beckhoff.writePlcData(symbol);
+console.log(JSON.stringify(data));
 ```
