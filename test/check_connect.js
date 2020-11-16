@@ -408,8 +408,11 @@ const waitForCommand = async function () {
   
 waitForCommand();
   
-trmnl.on('close', function() {
+trmnl.on('close', async function() {
   console.log('\nBYE BYE !!!');
-  beckhoff.destroy();
+  await beckhoff.destroy()
+    .catch((error) => {
+      console.error('on close : ' + error);
+    });
   process.exit(0);
 });
