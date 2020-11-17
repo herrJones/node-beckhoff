@@ -4,7 +4,10 @@
       "node": true,
       "mocha": true
   },
-  "extends": "eslint:recommended",
+  "extends": [
+     // "standard"
+      "eslint:recommended"
+  ],
   "rules": {
       "indent": [
           "error",
@@ -30,6 +33,6 @@
       ]
   },
   "parserOptions": {
-      "ecmaVersion": 2018
+      "ecmaVersion": 2021
   }
 }
