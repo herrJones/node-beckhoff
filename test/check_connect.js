@@ -20,11 +20,14 @@ const symbolReadList = settings.readlist;
 const symbolReadMultiList = settings.readlist_multi;
 const symbolWriteList = settings.writelist;
 const symbolWriteMultiList = settings.writelist_multi;
+const symbolNotifyList = settings.notifyList;
 
 let symbolReadIdx = 0;
 let symbolReadMultiIdx = 0;
 let symbolWriteIdx = 0;
 let symbolWriteMultiIdx = 0;
+let symbolStartNotifyIdx = 0;
+let symbolStopNotifyIdx = 0;
 
 let options = {};
 
@@ -53,7 +56,8 @@ const waitForCommand = async function () {
                     'adsa help       -- node-ads-api help function\n' +
                     'adsa info       -- get plc info\n' +
                     'adsa state      -- get plc state\n' +
-                    'adsa symbol     -- get plc symbol list\n' +
+                    'adsa symbols     -- get plc symbol list\n' +
+                    'adsa datatypes  -- get plc datatypes list\n' +
                     'adsa read       --\n' +
                     'adsa readmulti  --\n' +
                     'adsa write      --\n');
@@ -105,7 +109,7 @@ const waitForCommand = async function () {
         client.on('timeout', (err) => {
           console.error('timeout : ' + err);
         });
-      } else if (answer.endsWith('symbol')) {
+      } else if (answer.endsWith('symbols')) {
         console.log('command: ADS-API symbol list');
         const client = ads.connect(options, function() {
           this.getSymbols((err, symbols) => {
@@ -114,6 +118,25 @@ const waitForCommand = async function () {
             }
          
             //console.log(JSON.stringify(symbols, null, 2));
+          });
+        });
+        
+        client.on('error', function(err)  {
+          console.error('plc client error: ' + err);
+        });
+        
+        client.on('timeout', function(err)  {
+          console.error('plc client timeout: ' + err);
+        });
+      } else if (answer.endsWith('datatypes')) {
+        console.log('command: ADS-API datatypes list');
+        const client = ads.connect(options, function() {
+          this.getDatatyps((err, types) => {
+            if (err) {
+              console.log(err);
+            }
+         
+            //console.log(JSON.stringify(types, null, 2));
           });
         });
         
@@ -252,10 +275,13 @@ const waitForCommand = async function () {
                     'bkhf help       -- beckhoff help function\n' +
                     'bkhf info       -- get plc info\n' +
                     'bkhf state      -- get plc state\n' +
-                    'bkhf symbol     -- get plc symbol list\n' + 
+                    'bkhf symbols    -- get plc symbol list\n' + 
+                    'bkhf datatypes  -- get plc datatypes list\n' +
                     'bkhf read       -- get plc symbol value\n' +
                     'bkhf readmulti  -- get multiple plc symbol values\n' +
-                    'bkhf write      -- write plc symbol value');
+                    'bkhf write      -- write plc symbol value\n' +
+                    'bkhf writemulti -- write multiple plc symbol values\n' +
+                    'bkhf notify     -- get notifications from a plc symbol value');
         
       } else if (answer.endsWith('info')) {
         console.log('command: BECKHOFF DEVICE INFO');
@@ -293,7 +319,7 @@ const waitForCommand = async function () {
             console.log(JSON.stringify(error));
           }); 
           
-      } else if (answer.endsWith('symbol')) {
+      } else if (answer.endsWith('symbols')) {
         console.log('command: BECKHOFF SYMBOL LIST');
 
         options.develop.verbose = false;
@@ -302,6 +328,26 @@ const waitForCommand = async function () {
 
         hrstart = process.hrtime();
         await beckhoff.getPlcSymbols()
+          .then((data) => {
+            hrend = process.hrtime(hrstart);
+            //console.log(JSON.stringify(data));
+            console.log('OK - ' + data.length);
+          })
+          .catch((error) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(error));
+          }); 
+
+        
+      } else if (answer.endsWith('datatypes')) {
+        console.log('command: BECKHOFF DATATYPE LIST');
+
+        options.develop.verbose = false;
+        options.develop.debug = false;
+        beckhoff.settings = options; 
+
+        hrstart = process.hrtime();
+        await beckhoff.getPlcDataTypes()
           .then((data) => {
             hrend = process.hrtime(hrstart);
             //console.log(JSON.stringify(data));
@@ -383,11 +429,34 @@ const waitForCommand = async function () {
         options.develop.debug = false;
         beckhoff.settings = options;
 
-        const symbols = symbolWriteMultiList[symbolWriteMultiIdx];
-        if (++symbolWriteMultiIdx == symbolWriteMultiList.length) symbolWriteMultiIdx = 0;
+        //const symbols = symbolWriteMultiList[symbolWriteMultiIdx];
+        //if (++symbolWriteMultiIdx == symbolWriteMultiList.length) symbolWriteMultiIdx = 0;
 
+        console.log('still in testing stage - sorry...');
         //hrstart = process.hrtime();
         //const data = await beckhoff.writePlcData(symbols);
+        //hrend = process.hrtime(hrstart);
+
+        //console.log(JSON.stringify(data));
+
+      } else if (answer.endsWith('notify start')) {
+        console.log('command: BECKHOFF START NOTIFYING SYMBOL');
+
+        options.develop.verbose = false;
+        options.develop.debug = false;
+        beckhoff.settings = options;
+
+        if (symbolStartNotifyIdx >= symbolNotifyList.length) {
+          console.log('all notifications are active');
+          waitForCommand(); 
+          return;
+        }
+        const symbols = symbolNotifyList[symbolWriteMultiIdx];
+        //if (++symbolWriteMultiIdx == symbolWriteMultiList.length) symbolWriteMultiIdx = 0;
+
+        
+        //hrstart = process.hrtime();
+        const data = await beckhoff.addPlcNotification(symbols);
         //hrend = process.hrtime(hrstart);
 
         //console.log(JSON.stringify(data));
