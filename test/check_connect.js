@@ -4,8 +4,8 @@ const readline = require('readline');
 const ip = require('ip');
 const settings = require(__dirname + '/settings.json');
 
-//const ads = require('node-ads');
-const ads = require('./node-ads-api');
+const ads = require('node-ads');
+//const ads = require('./node-ads-api');
 
 const BeckhoffClient = require('../lib/beckhoff');
 const beckhoff = new BeckhoffClient(settings);
@@ -60,9 +60,9 @@ const waitForCommand = async function () {
                     'adsa read         -- get plc symbol value\n' +
                     'adsa readmulti    -- get multiple plc symbol values\n' +
                     'adsa write        -- write plc symbol value\n' +
-                    'adsa writemulti   -- write multiple plc symbol values\n' +
-                    'adsa notify start -- get notifications from a plc symbol value\n' +
-                    'adsa notify stop  -- stop getting notifications from a plc symbol value');
+                    'adsa writemulti   -- write multiple plc symbol values\n'); // +
+        //            'adsa notify start -- get notifications from a plc symbol value\n' +
+        //            'adsa notify stop  -- stop getting notifications from a plc symbol value');
       } else if (answer.endsWith('info')) {
         console.log('command: ADS-API device info\n');
 
@@ -184,7 +184,6 @@ const waitForCommand = async function () {
       } else if (answer.endsWith('readmulti')) {
         console.log('command: ADS-API READ MULTIPLE SYMBOLS');
         const symbols = symbolReadMultiList[symbolReadMultiIdx];
-        //let symbols = symbolReadMultiList[0];
             
         for (let i = 0; i < symbols.length; i++) {
           const symbol = symbols[i];
@@ -286,7 +285,8 @@ const waitForCommand = async function () {
           console.error('timeout : ' + err);
         });
 
-      } else if (answer.endsWith('notify start')) {
+      } 
+      /*else if (answer.endsWith('notify start')) {
         console.log('command: ADS-API WRITE SYMBOL');
 
         const symbol = {
@@ -359,6 +359,7 @@ const waitForCommand = async function () {
         });
 
       }
+      */
 
         
     } else if (answer.startsWith('bkhf')) {
@@ -384,9 +385,9 @@ const waitForCommand = async function () {
                     'bkhf read         -- get plc symbol value\n' +
                     'bkhf readmulti    -- get multiple plc symbol values\n' +
                     'bkhf write        -- write plc symbol value\n' +
-                    'bkhf writemulti   -- write multiple plc symbol values\n' +
-                    'bkhf notify start -- get notifications from a plc symbol value\n' +
-                    'bkhf notify stop  -- stop getting notifications from a plc symbol value');
+                    'bkhf writemulti   -- write multiple plc symbol values\n'); // +
+        //            'bkhf notify start -- get notifications from a plc symbol value\n' +
+        //            'bkhf notify stop  -- stop getting notifications from a plc symbol value');
         
       } else if (answer.endsWith('info')) {
         console.log('command: BECKHOFF DEVICE INFO');
@@ -544,7 +545,9 @@ const waitForCommand = async function () {
 
         //console.log(JSON.stringify(data));
 
-      } else if (answer.endsWith('notify start')) {
+      } 
+      /*
+      else if (answer.endsWith('notify start')) {
         console.log('command: BECKHOFF START NOTIFYING SYMBOL');
 
         options.develop.verbose = true;
@@ -584,6 +587,7 @@ const waitForCommand = async function () {
         }
         
       }
+      */
 
       if (Array.isArray(hrend)) {
         console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
