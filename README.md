@@ -1,7 +1,8 @@
 # node-beckhoff
 > Beckhoff ADS/AMS protocol implementation to use as Node.JS library
 
-Heavily inspired on the Node.JS implementation of Roccomuso (https://github.com/roccomuso/node-ads)
+Heavily inspired on the Node.JS implementation of _roccomuso_ (https://github.com/roccomuso/node-ads)
+and _jisotalo_ (https://github.com/jisotalo/ads-client)
 
 This library aims to be faster in handling read and write requests by caching the handles to the variables.
 The library uses async/await and Promises instead of the basic callbacks, so it's a little easier to read and follow.
@@ -20,6 +21,7 @@ When the application terminates, all handles should be cleaned _(unstable for no
 * __getPlcState__ : read current plc state 
 * __getPlcSymbols__ : read the list of plc symbols 
   _-> this step is necessary in order to read and write individual symbols_
+* __getPlcDataTypes__ : read the list of plc datatypes
 * __readPlcData__ : read the current value of a (list of) specified symbol(s) 
   _-> multiple symbols allowed_
 * __writePlcData__ : set the value of a specified symbol 
@@ -36,8 +38,9 @@ This shows the (different) approach for node-ads users and will help new users g
 
 ```javascript
 const BeckhoffClient = require('node-beckhoff');
+const settings = require(__dirname + '/settings.json');
 
-const beckhoff = new BeckhoffClient();
+const beckhoff = new BeckhoffClient(settings);
 
 const tmpSettings = beckhoff.settings;
 
@@ -52,27 +55,26 @@ let data = await beckhoff.getPlcInfo();
 console.log(JSON.stringify(data));
 
 // fetch all symbols 
-data = beckhoff.getPlcSymbols();
+data = await beckhoff.getPlcSymbols();
 //console.log(JSON.stringify(data)); -> this will produce quite some output
 console.log('OK - ' + data.length);
 
-// 
 let symbol = [
   { name : 'SENSORS.temp_outside' }
 ];
-data = beckhoff.readPlcData(symbol);
+data = await beckhoff.readPlcData(symbol);
 console.log(JSON.stringify(data));
 
 symbol = [
   { name : 'SENSORS.temp_outside' },
   { name : 'SENSORS.temp_inside' }
 ];
-data = beckhoff.readPlcData(symbol);
+data = await beckhoff.readPlcData(symbol);
 console.log(JSON.stringify(data));
 
 symbol = [
   { name : 'LIGHTS.light_outside', value : 1 }
 ];
-data = beckhoff.writePlcData(symbol);
+data = await beckhoff.writePlcData(symbol);
 console.log(JSON.stringify(data));
 ```
