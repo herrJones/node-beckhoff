@@ -1,6 +1,6 @@
 {
   "name": "node-beckhoff",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "AMS/ADS implementation for beckhoff PLCs",
   "main": "lib/beckhoff.js",
   "keywords": [
@@ -36,5 +36,9 @@
   "directories": {
     "lib": "lib",
     "test": "test"
+  },
+  "scripts": {
+    "test": "test/check_connect.js",
+    "lint": "eslint"
   }
 }
