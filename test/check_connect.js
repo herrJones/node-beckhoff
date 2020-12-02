@@ -535,15 +535,15 @@ const waitForCommand = async function () {
         options.develop.debug = false;
         beckhoff.settings = options;
 
-        //const symbols = symbolWriteMultiList[symbolWriteMultiIdx];
-        //if (++symbolWriteMultiIdx == symbolWriteMultiList.length) symbolWriteMultiIdx = 0;
+        const symbols = symbolWriteMultiList[symbolWriteMultiIdx];
+        if (++symbolWriteMultiIdx == symbolWriteMultiList.length) symbolWriteMultiIdx = 0;
 
-        console.log('still in testing stage - sorry...');
-        //hrstart = process.hrtime();
-        //const data = await beckhoff.writePlcData(symbols);
-        //hrend = process.hrtime(hrstart);
+        //console.log('still in testing stage - sorry...');
+        hrstart = process.hrtime();
+        const data = await beckhoff.writePlcData(symbols);
+        hrend = process.hrtime(hrstart);
 
-        //console.log(JSON.stringify(data));
+        console.log(JSON.stringify(data));
 
       } 
       /*
