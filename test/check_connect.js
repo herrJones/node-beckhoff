@@ -336,11 +336,10 @@ const waitForCommand = async function () {
         const client = ads.connect(options, function() {
 
           const symbol = {
-            'symname' : symbolWriteList[symbolWriteIdx].name,
-            'value'   : symbolWriteList[symbolWriteIdx].value
+            'symname' : symbolNotifyList[symbolStopNotifyIdx].name
           };
 
-          if (++symbolWriteIdx == 4) symbolWriteIdx = 0;
+          if (++symbolStopNotifyIdx == 4) symbolStopNotifyIdx = 0;
 
           this.write(symbol, (err, data) => {
             const hrend = process.hrtime(hrstart);
@@ -558,9 +557,9 @@ const waitForCommand = async function () {
         } else {
           const symbols = symbolNotifyList[symbolStartNotifyIdx++];
     
-          //hrstart = process.hrtime();
+          hrstart = process.hrtime();
           const data = await beckhoff.addPlcNotification(symbols);
-          //hrend = process.hrtime(hrstart);
+          hrend = process.hrtime(hrstart);
 
           console.log(JSON.stringify(data));
         }
@@ -578,9 +577,9 @@ const waitForCommand = async function () {
         } else {
           const symbols = symbolNotifyList[symbolStopNotifyIdx++];
     
-          //hrstart = process.hrtime();
+          hrstart = process.hrtime();
           const data = await beckhoff.delPlcNotification(symbols);
-          //hrend = process.hrtime(hrstart);
+          hrend = process.hrtime(hrstart);
   
           console.log(JSON.stringify(data));
         }
