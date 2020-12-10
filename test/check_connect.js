@@ -10,10 +10,6 @@ const ads = require('node-ads');
 const BeckhoffClient = require('../lib/beckhoff');
 const beckhoff = new BeckhoffClient(settings);
 
-beckhoff.on('notify', (data) => {
-  console.log('notify: ' + JSON.stringify(data));
-});
-
 const trmnl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -577,9 +573,9 @@ const waitForCommand = async function () {
         } else {
           const symbols = symbolNotifyList[symbolStopNotifyIdx++];
     
-          hrstart = process.hrtime();
+          //hrstart = process.hrtime();
           const data = await beckhoff.delPlcNotification(symbols);
-          hrend = process.hrtime(hrstart);
+          //hrend = process.hrtime(hrstart);
   
           console.log(JSON.stringify(data));
         }
@@ -599,6 +595,10 @@ const waitForCommand = async function () {
 };
   
 waitForCommand();
+
+beckhoff.on('notify', (data) => {
+  console.log('notify: ' + JSON.stringify(data));
+});
   
 trmnl.on('close', async function() {
   console.log('\nBYE BYE !!!');
