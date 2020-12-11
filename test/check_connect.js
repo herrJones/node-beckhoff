@@ -19,7 +19,7 @@ const symbolReadList = settings.readlist;
 const symbolReadMultiList = settings.readlist_multi;
 const symbolWriteList = settings.writelist;
 const symbolWriteMultiList = settings.writelist_multi;
-//const symbolNotifyList = settings.notifyList;
+const symbolNotifyList = settings.notifylist;
 
 let symbolReadIdx = 0;
 let symbolReadMultiIdx = 0;
@@ -60,9 +60,9 @@ const waitForCommand = async function () {
                     'adsa read         -- get plc symbol value\n' +
                     'adsa readmulti    -- get multiple plc symbol values\n' +
                     'adsa write        -- write plc symbol value\n' +
-                    'adsa writemulti   -- write multiple plc symbol values\n'); // +
-        //            'adsa notify start -- get notifications from a plc symbol value\n' +
-        //            'adsa notify stop  -- stop getting notifications from a plc symbol value');
+                    'adsa writemulti   -- write multiple plc symbol values\n' +
+                    'adsa notify start -- get notifications from a plc symbol value\n' +
+                    'adsa notify stop  -- stop getting notifications from a plc symbol value');
       } else if (answer.endsWith('info')) {
         console.log('command: ADS-API device info\n');
 
@@ -285,8 +285,7 @@ const waitForCommand = async function () {
           console.error('timeout : ' + err);
         });
 
-      } 
-      /*else if (answer.endsWith('notify start')) {
+      } else if (answer.endsWith('notify start')) {
         console.log('command: ADS-API WRITE SYMBOL');
 
         const symbol = {
@@ -333,11 +332,10 @@ const waitForCommand = async function () {
         const client = ads.connect(options, function() {
 
           const symbol = {
-            'symname' : symbolWriteList[symbolWriteIdx].name,
-            'value'   : symbolWriteList[symbolWriteIdx].value
+            'symname' : symbolNotifyList[symbolStopNotifyIdx].name
           };
 
-          if (++symbolWriteIdx == 4) symbolWriteIdx = 0;
+          if (++symbolStopNotifyIdx == 4) symbolStopNotifyIdx = 0;
 
           this.write(symbol, (err, data) => {
             const hrend = process.hrtime(hrstart);
@@ -359,8 +357,6 @@ const waitForCommand = async function () {
         });
 
       }
-      */
-
         
     } else if (answer.startsWith('bkhf')) {
       options = {
@@ -385,9 +381,9 @@ const waitForCommand = async function () {
                     'bkhf read         -- get plc symbol value\n' +
                     'bkhf readmulti    -- get multiple plc symbol values\n' +
                     'bkhf write        -- write plc symbol value\n' +
-                    'bkhf writemulti   -- write multiple plc symbol values\n'); // +
-        //            'bkhf notify start -- get notifications from a plc symbol value\n' +
-        //            'bkhf notify stop  -- stop getting notifications from a plc symbol value');
+                    'bkhf writemulti   -- write multiple plc symbol values\n' +
+                    'bkhf notify start -- get notifications from a plc symbol value\n' +
+                    'bkhf notify stop  -- stop getting notifications from a plc symbol value');
         
       } else if (answer.endsWith('info')) {
         console.log('command: BECKHOFF DEVICE INFO');
@@ -545,13 +541,11 @@ const waitForCommand = async function () {
 
         console.log(JSON.stringify(data));
 
-      } 
-      /*
-      else if (answer.endsWith('notify start')) {
+      } else if (answer.endsWith('notify start')) {
         console.log('command: BECKHOFF START NOTIFYING SYMBOL');
 
-        options.develop.verbose = true;
-        options.develop.debug = true;
+        options.develop.verbose = false;
+        options.develop.debug = false;
         beckhoff.settings = options;
 
         if (symbolStartNotifyIdx >= symbolNotifyList.length) {
@@ -559,9 +553,9 @@ const waitForCommand = async function () {
         } else {
           const symbols = symbolNotifyList[symbolStartNotifyIdx++];
     
-          //hrstart = process.hrtime();
+          hrstart = process.hrtime();
           const data = await beckhoff.addPlcNotification(symbols);
-          //hrend = process.hrtime(hrstart);
+          hrend = process.hrtime(hrstart);
 
           console.log(JSON.stringify(data));
         }
@@ -587,8 +581,7 @@ const waitForCommand = async function () {
         }
         
       }
-      */
-
+      
       if (Array.isArray(hrend)) {
         console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
       }
@@ -602,6 +595,10 @@ const waitForCommand = async function () {
 };
   
 waitForCommand();
+
+beckhoff.on('notify', (data) => {
+  console.log('notify: ' + JSON.stringify(data));
+});
   
 trmnl.on('close', async function() {
   console.log('\nBYE BYE !!!');

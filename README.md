@@ -10,7 +10,7 @@ The library uses async/await and Promises instead of the basic callbacks, so it'
 The calls exposed to the user side provide Promises
 
 ## Faster handling
-Although implementation is still in javascript, execution speed is gained by storing fixed blocks of data (header) and storing handles in a SQLite database (default choice = in-memory).
+Although implementation is still in javascript, execution speed is gained by storing fixed blocks of data (header) and storing handles in a SQLite database (default choice = in-memory)(storing on-disk is also possible but may have performance penalties, depending on the kind of storage used ).
 The drawback of this is that the application has to restart (or: re-fetch the basic data) after a PLC code-update. 
 
 Handles are stored after first use.
@@ -25,10 +25,16 @@ When the application terminates, all handles should be cleaned _(unstable for no
 * __readPlcData__ : read the current value of a (list of) specified symbol(s) 
   _-> multiple symbols allowed_
 * __writePlcData__ : set the value of a specified symbol 
-  _-> multiple symbols not (yet?) allowed_
-* __destroy__ : close connection to th PLC. Free used handles.
+  _-> multiple symbols allowed_
+* __delPlcHandle__ : delete a read handle for a symbol
+  _-> multiple symbols allowed_
+  _-> handles are fetched automatically upon read/write/notify_
+* __addPlcNotification__ : add a notification for a specific symbol
+  _-> multiple symbol notifications are planned_
+* __delPlcNotification__ : remove notifications for a specific symbol
+  _-> multiple symbols allowed_
+* __destroy__ : close connection to th PLC. Free used symbol + notify handles.
 
-_Notifications_ are a planned feature
 
 ## Example application
 A sample console application is provided.
@@ -76,5 +82,26 @@ symbol = [
   { name : 'LIGHTS.light_outside', value : 1 }
 ];
 data = await beckhoff.writePlcData(symbol);
+console.log(JSON.stringify(data));
+
+/*
+ * symbol notifications
+ */
+beckhoff.on('notify', (data) => {
+  console.log(JSON.stringify(data));
+})
+
+symbols = [
+ // {name : "SENSORS.temp_inside",        mode: "cyclic",   delay : 5, cycle: 30},
+  {name : "SENSORS.contact_front_door", mode: "onchange", delay : 5, cycle: 5}
+];
+data = await beckhoff.addPlcNotification(symbols);
+console.log(JSON.stringify(data));
+
+symbols = [
+ // {name : "SENSORS.temp_inside"},
+  {name : "SENSORS.contact_front_door"}
+];
+data = await beckhoff.delPlcNotification(symbols);
 console.log(JSON.stringify(data));
 ```
