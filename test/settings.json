@@ -46,7 +46,8 @@
     [{"name" : "LIGHTS.dim_living_room", "value" :  0},{"name" : "LIGHTS.lgt_tabletop", "value" : 0}],
   ],
   "notifylist" :[
-    {"name" : "SENSORS.temp_inside",        "mode": "cyclic",   "delay" : 5, "cycle": 30},
-    {"name" : "SENSORS.contact_front_door", "mode": "onchange", "delay" : 5, "cycle": 5}
+    [{"name" : "SENSORS.light_outside",      "mode": "cyclic",   "delay" : 15, "cycle": 5}],
+    [{"name" : "SENSORS.temp_outside",       "mode": "cyclic",   "delay" : 15, "cycle": 5},{"name" : "SENSORS.temp_inside",       "mode": "cyclic",   "delay" : 15, "cycle": 5}],
+    [{"name" : "SENSORS.contact_front_door", "mode": "onchange", "delay" :  5, "cycle": 5}]
   ]
 }
