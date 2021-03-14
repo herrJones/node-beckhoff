@@ -4,11 +4,14 @@ const readline = require('readline');
 const ip = require('ip');
 const settings = require(__dirname + '/settings.json');
 
-const ads = require('node-ads');
-//const ads = require('./node-ads-api');
+const adsa = require('node-ads');
+//const adsa = require('./node-ads-api');
+//const adsc = require('ads-client');
+const adsc = require('./ads-client-master');
+
 
 const BeckhoffClient = require('../lib/beckhoff');
-const beckhoff = new BeckhoffClient(settings);
+const beckhoff = new BeckhoffClient(settings); 
 
 const trmnl = readline.createInterface({
   input: process.stdin,
@@ -32,10 +35,12 @@ let options = {};
 
 const waitForCommand = async function () {
   trmnl.question('beckhoff ADS/AMS command to test (? for help)  ', async function(answer) {
-    if (answer == '?') {
+    if ((answer == '?') || (answer == 'help')) {
       console.log('?    -- this help function\n' +
                   'adsa -- test via node-ads-api\n' +
                   '        use "adsa ?" to get more help\n' +
+                  'adsc -- test via ads-client\n' +
+                  '        use "adsc ?" to get more help\n' +
                   'bkhf -- test a library command\n' +
                   '        use "bkhf ?" to get more help\n' +
                   'quit -- close this application\n\n' );
@@ -67,7 +72,7 @@ const waitForCommand = async function () {
         console.log('command: ADS-API device info\n');
 
         const hrstart = process.hrtime();
-        const client = ads.connect(options, function() {
+        const client = adsa.connect(options, function() {
             
           this.readDeviceInfo((err, data) => {
             const hrend = process.hrtime(hrstart);
@@ -91,7 +96,7 @@ const waitForCommand = async function () {
         console.log('command: ADS-API device state\n');
 
         const hrstart = process.hrtime();
-        const client = ads.connect(options, function() {
+        const client = adsa.connect(options, function() {
           
           this.readState((err, data) => {
             const hrend = process.hrtime(hrstart);
@@ -113,7 +118,7 @@ const waitForCommand = async function () {
         });
       } else if (answer.endsWith('symbols')) {
         console.log('command: ADS-API symbol list');
-        const client = ads.connect(options, function() {
+        const client = adsa.connect(options, function() {
           this.getSymbols((err, symbols) => {
             if (err) {
               console.log(err);
@@ -132,7 +137,7 @@ const waitForCommand = async function () {
         });
       } else if (answer.endsWith('datatypes')) {
         console.log('command: ADS-API datatypes list');
-        const client = ads.connect(options, function() {
+        const client = adsa.connect(options, function() {
           this.getDatatyps((err, types) => {
             if (err) {
               console.log(err);
@@ -160,7 +165,7 @@ const waitForCommand = async function () {
         if (++symbolReadIdx == 5) symbolReadIdx = 0;
 
         const hrstart = process.hrtime();
-        const client = ads.connect(options, function() {
+        const client = adsa.connect(options, function() {
 
           this.read(symbol, (err, data) => {
             const hrend = process.hrtime(hrstart);
@@ -196,7 +201,7 @@ const waitForCommand = async function () {
         if (++symbolReadMultiIdx == symbolReadMultiList.length) symbolReadMultiIdx = 0;
 
         const hrstart = process.hrtime();
-        const client = ads.connect(options, function() {
+        const client = adsa.connect(options, function() {
 
           this.multiRead(symbols, (err, data) => {
             const hrend = process.hrtime(hrstart);
@@ -225,7 +230,7 @@ const waitForCommand = async function () {
 
         if (++symbolWriteIdx == 4) symbolWriteIdx = 0;
         const hrstart = process.hrtime();
-        const client = ads.connect(options, function() {
+        const client = adsa.connect(options, function() {
 
           this.write(symbol, (err, data) => {
             const hrend = process.hrtime(hrstart);
@@ -264,7 +269,7 @@ const waitForCommand = async function () {
         if (++symbolWriteMultiIdx == 4) symbolWriteMultiIdx = 0;
 
         const hrstart = process.hrtime();
-        const client = ads.connect(options, function() {
+        const client = adsa.connect(options, function() {
 
           this.multiWrite(symbols, (err, data) => {
             const hrend = process.hrtime(hrstart);
@@ -290,21 +295,21 @@ const waitForCommand = async function () {
 
         const symbol = {
           'symname' : symbolNotifyList[symbolStartNotifyIdx].name,
-          'bytelength' : ads.INT,
+          'bytelength' : adsa.INT,
           'cycleTime' : 5000,
           'maxDelay'  : 5000
         };
 
         if (symbolNotifyList[symbolStartNotifyIdx].mode.toUpperCase() == 'CYCLIC') {
-          symbol.transmissionMode = ads.NOTIFY.CYCLIC;
+          symbol.transmissionMode = adsa.NOTIFY.CYCLIC;
         } else {
-          symbol.transmissionMode = ads.NOTIFY.ONCHANGE;
+          symbol.transmissionMode = adsa.NOTIFY.ONCHANGE;
         }
 
         if (++symbolStartNotifyIdx == 2) symbolStartNotifyIdx = 0;
 
         const hrstart = process.hrtime();
-        const client = ads.connect(options, function() {
+        const client = adsa.connect(options, function() {
 
           this.notify(symbol, (err, data) => {
             const hrend = process.hrtime(hrstart);
@@ -329,7 +334,7 @@ const waitForCommand = async function () {
         console.log('command: ADS-API WRITE SYMBOL');
 
         const hrstart = process.hrtime();
-        const client = ads.connect(options, function() {
+        const client = adsa.connect(options, function() {
 
           const symbol = {
             'symname' : symbolNotifyList[symbolStopNotifyIdx].name
@@ -358,6 +363,70 @@ const waitForCommand = async function () {
 
       }
         
+    } else if (answer.startsWith('adsc')) { 
+      options = {
+        localAmsNetId: ip.address()+ '.1.1',
+        localAdsPort: settings.local.port,                //Can be anything that is not used
+        targetAmsNetId: settings.remote.netid,
+        targetAdsPort: settings.remote.port,
+        routerAddress: settings.plc.ip,     //PLC ip address
+        routerTcpPort: 48898
+      };
+
+      let hrstart = 0;
+      let hrend = 0;
+      if (answer.endsWith('?') || answer.endsWith('help')) {
+        console.log(
+          'adsc ?            -- ads-client help function\n' +
+          'adsc help         -- ads-client help function\n' +
+          'adsc info         -- get plc info\n' +
+          'adsc state        -- get plc state\n');
+      } else if (answer.endsWith('info')) {
+        console.log('command: ADS-CLIENT DEVICE INFO');
+        const client = new adsc.Client(options);
+
+        hrstart = process.hrtime();
+        await client.connect()
+          .then(() => {
+            //client.setDebugging(4);
+            return client.readDeviceInfo();
+          }) 
+          .then((data) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(data));
+
+            return client.disconnect();
+          })
+          .catch((error) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(error));
+          }); 
+
+      } else if (answer.endsWith('state')) {
+        console.log('command: ADS-CLIENT DEVICE STATE');
+        const client = new adsc.Client(options);
+        
+        hrstart = process.hrtime();
+        await client.connect()
+          .then(() => {
+            return client.readPlcRuntimeState();
+          }) 
+          .then((data) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(data));
+
+            return client.disconnect();
+          })
+          .catch((error) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(error));
+          });
+
+      }
+
+      if (Array.isArray(hrend)) {
+        console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
+      }
     } else if (answer.startsWith('bkhf')) {
       options = {
         plc : settings.plc,
