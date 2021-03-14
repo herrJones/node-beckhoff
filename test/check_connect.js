@@ -1,13 +1,13 @@
 'use strict';
 
 const readline = require('readline');
-const ip = require('ip');
+//const ip = require('ip');
 const settings = require(__dirname + '/settings.json');
 
 const adsa = require('node-ads');
 //const adsa = require('./node-ads-api');
-//const adsc = require('ads-client');
-const adsc = require('./ads-client-master');
+const adsc = require('ads-client');
+//const adsc = require('./ads-client-master');
 
 
 const BeckhoffClient = require('../lib/beckhoff');
@@ -50,9 +50,9 @@ const waitForCommand = async function () {
         host: settings.plc.ip,
         amsNetIdTarget: settings.remote.netid,
         amsPortTarget: settings.remote.port,
-        amsNetIdSource: ip.address() + '.1.1',
+        amsNetIdSource: settings.local.netid,//ip.address()+ '.1.1',
         verbose: 2, 
-        timeout: 15000
+        timeout: 10000
       };
 
       if (answer.endsWith('?') || answer.endsWith('help')) {
@@ -365,12 +365,12 @@ const waitForCommand = async function () {
         
     } else if (answer.startsWith('adsc')) { 
       options = {
-        localAmsNetId: ip.address()+ '.1.1',
+        localAmsNetId: settings.local.netid,//ip.address()+ '.1.1',
         localAdsPort: settings.local.port,                //Can be anything that is not used
         targetAmsNetId: settings.remote.netid,
         targetAdsPort: settings.remote.port,
         routerAddress: settings.plc.ip,     //PLC ip address
-        routerTcpPort: 48898
+        routerTcpPort: settings.plc.port
       };
 
       let hrstart = 0;
@@ -380,7 +380,12 @@ const waitForCommand = async function () {
           'adsc ?            -- ads-client help function\n' +
           'adsc help         -- ads-client help function\n' +
           'adsc info         -- get plc info\n' +
-          'adsc state        -- get plc state\n');
+          'adsc state        -- get plc state\n' +
+          'adsc state get    -- get plc state\n' +
+          'adsc state start  -- set plc in START state\n' +
+          'adsc state stop   -- set plc in STOP state\n' +
+          'adsc state config -- set plc in CONFIG state\n' +
+          'adsc rpc          -- call plc rpc method\n');
       } else if (answer.endsWith('info')) {
         console.log('command: ADS-CLIENT DEVICE INFO');
         const client = new adsc.Client(options);
@@ -402,7 +407,7 @@ const waitForCommand = async function () {
             console.log(JSON.stringify(error));
           }); 
 
-      } else if (answer.endsWith('state')) {
+      } else if ((answer.endsWith('state') || answer.endsWith('state get'))) {
         console.log('command: ADS-CLIENT DEVICE STATE');
         const client = new adsc.Client(options);
         
@@ -422,6 +427,90 @@ const waitForCommand = async function () {
             console.log(JSON.stringify(error));
           });
 
+      } else if (answer.endsWith('state stop')) {
+        console.log('command: ADS-CLIENT STOP PLC');
+        const client = new adsc.Client(options);
+        
+        hrstart = process.hrtime();
+        await client.connect()
+          .then(() => {
+            return client.stop(options.targetAdsPort);
+          }) 
+          .then((data) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(data));
+
+            return client.disconnect();
+          })
+          .catch((error) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(error));
+          });
+      } else if (answer.endsWith('state start')) {
+        console.log('command: ADS-CLIENT START PLC');
+        const client = new adsc.Client(options);
+        
+        hrstart = process.hrtime();
+        await client.connect()
+          .then(() => {
+            return client.startPlc(options.targetAdsPort);
+          }) 
+          .then((data) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(data));
+
+            return client.disconnect();
+          })
+          .catch((error) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(error));
+          });
+      } else if (answer.endsWith('state config')) {
+        console.log('command: ADS-CLIENT SET DEVICE IN CONFIG STATE');
+        const client = new adsc.Client(options);
+        
+        hrstart = process.hrtime();
+        await client.connect()
+          .then(() => {
+            return client.setSystemManagerToConfig();
+          }) 
+          .then((data) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(data));
+
+            return client.disconnect();
+          })
+          .catch((error) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(error));
+          });
+      } else if (answer.endsWith('rpc')) {
+        console.log('command: ADS-CLIENT CALL RPC METHOD');
+        const client = new adsc.Client(options);
+
+        hrstart = process.hrtime();
+        await client.connect()
+          .then(() => {
+            //return client.invokeRpcMethod("DEV_LIGHTS.SW_DOMO_0", "SET_VALUE", {
+            //  name: 'DEV_LIGHTS.CNT_DIMMER_1',
+            //  port: options.targetAdsPort,
+            //  value: 123
+            //});
+            return client.invokeRpcMethod("DEV_LIGHTS.SW_DOMO_0", "CALCULATE", {
+              Value1: 4,
+              Value2: 5
+            });
+          }) 
+          .then((data) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(data));
+
+            return client.disconnect();
+          })
+          .catch((error) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(error));
+          });
       }
 
       if (Array.isArray(hrend)) {
@@ -432,7 +521,7 @@ const waitForCommand = async function () {
         plc : settings.plc,
         remote : settings.remote,
         local : {
-          netid   : ip.address() + '.1.1',
+          netid   : settings.local.netid, //ip.address() + '.1.1',
           port    : settings.local.port
         },
         develop : settings.develop
