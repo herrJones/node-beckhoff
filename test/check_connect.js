@@ -11,7 +11,6 @@ const adsc = require('ads-client');
 
 
 const BeckhoffClient = require('../lib/beckhoff');
-const { config } = require('process');
 const beckhoff = new BeckhoffClient(settings); 
 
 const trmnl = readline.createInterface({
@@ -381,6 +380,8 @@ const waitForCommand = async function () {
           'adsc ?            -- ads-client help function\n' +
           'adsc help         -- ads-client help function\n' +
           'adsc info         -- get plc info\n' +
+          'adsc symbols      -- get plc symbol list\n' + 
+          'adsc datatypes    -- get plc datatypes list\n' +
           'adsc state        -- get plc state\n' +
           'adsc state get    -- get plc state\n' +
           'adsc state start  -- set plc in START state\n' +
@@ -408,7 +409,50 @@ const waitForCommand = async function () {
             console.log(JSON.stringify(error));
           }); 
 
-      } else if ((answer.endsWith('state') || answer.endsWith('state get'))) {
+      } else if (answer.endsWith('symbols')) {
+        console.log('command: ADS-CLIENT symbol list');
+        const client = new adsc.Client(options);
+
+        hrstart = process.hrtime();
+        await client.connect()
+          .then(() => {
+            //client.setDebugging(4);
+            return client.readAndCacheSymbols();
+          }) 
+          .then((data) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(data));
+
+            return client.disconnect();
+          })
+          .catch((error) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(error));
+          }); 
+
+      } else if (answer.endsWith('datatypes')) {
+        console.log('command: ADS-CLIENT datatypes list');
+
+        const client = new adsc.Client(options);
+
+        hrstart = process.hrtime();
+        await client.connect()
+          .then(() => {
+            //client.setDebugging(4);
+            return client.readAndCacheDataTypes();
+          }) 
+          .then((data) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(data));
+
+            return client.disconnect();
+          })
+          .catch((error) => {
+            hrend = process.hrtime(hrstart);
+            console.log(JSON.stringify(error));
+          }); 
+
+      }else if ((answer.endsWith('state') || answer.endsWith('state get'))) {
         console.log('command: ADS-CLIENT DEVICE STATE');
         const client = new adsc.Client(options);
         
