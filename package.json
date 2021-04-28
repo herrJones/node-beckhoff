@@ -28,7 +28,10 @@
     "sqlite3": "^5.0.0"
   },
   "devDependencies": {
-    "eslint": "^7.12.1"
+    "ads-client": "^1.10.3",
+    "clinic": "^8.0.1",
+    "eslint": "^7.22.0",
+    "node-ads-api": "^1.4.16"
   },
   "bugs": {
     "url": "https://github.com/herrJones/node-beckhoff/issues"

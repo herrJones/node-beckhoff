@@ -4,13 +4,14 @@ const readline = require('readline');
 //const ip = require('ip');
 const settings = require(__dirname + '/settings.json');
 
-const adsa = require('node-ads');
-//const adsa = require('./node-ads-api');
-const adsc = require('ads-client');
-//const adsc = require('./ads-client-master');
+//const adsa = require('node-ads');
+const adsa = require('./node-ads-api');
+//const adsc = require('ads-client');
+const adsc = require('./ads-client-master');
 
 
 const BeckhoffClient = require('../lib/beckhoff');
+const { config } = require('process');
 const beckhoff = new BeckhoffClient(settings); 
 
 const trmnl = readline.createInterface({
@@ -32,6 +33,8 @@ let symbolStartNotifyIdx = 0;
 let symbolStopNotifyIdx = 0;
 
 let options = {};
+
+let rpcValue = 1;
 
 const waitForCommand = async function () {
   trmnl.question('beckhoff ADS/AMS command to test (? for help)  ', async function(answer) {
@@ -373,6 +376,7 @@ const waitForCommand = async function () {
         routerTcpPort: settings.plc.port
       };
 
+      
       let hrstart = 0;
       let hrend = 0;
       if (answer.endsWith('?') || answer.endsWith('help')) {
@@ -395,7 +399,6 @@ const waitForCommand = async function () {
         hrstart = process.hrtime();
         await client.connect()
           .then(() => {
-            //client.setDebugging(4);
             return client.readDeviceInfo();
           }) 
           .then((data) => {
@@ -416,7 +419,6 @@ const waitForCommand = async function () {
         hrstart = process.hrtime();
         await client.connect()
           .then(() => {
-            //client.setDebugging(4);
             return client.readAndCacheSymbols();
           }) 
           .then((data) => {
@@ -452,14 +454,16 @@ const waitForCommand = async function () {
             console.log(JSON.stringify(error));
           }); 
 
-      }else if ((answer.endsWith('state') || answer.endsWith('state get'))) {
+      } else if ((answer.endsWith('state') || answer.endsWith('state get'))) {
         console.log('command: ADS-CLIENT DEVICE STATE');
         const client = new adsc.Client(options);
         
         hrstart = process.hrtime();
         await client.connect()
-          .then(() => {
-            return client.readPlcRuntimeState();
+          .then(async () => {
+            const sysState = await client.readSystemManagerState();
+            const plcState = await  client.readPlcRuntimeState();
+            return sysState + plcState;
           }) 
           .then((data) => {
             hrend = process.hrtime(hrstart);
@@ -467,9 +471,12 @@ const waitForCommand = async function () {
 
             return client.disconnect();
           })
-          .catch((error) => {
+          .catch(async (error) => {
             hrend = process.hrtime(hrstart);
             console.log(JSON.stringify(error));
+
+            client.disconnect();
+
           });
 
       } else if (answer.endsWith('state stop')) {
@@ -536,16 +543,19 @@ const waitForCommand = async function () {
         hrstart = process.hrtime();
         await client.connect()
           .then(() => {
-            //return client.invokeRpcMethod("DEV_LIGHTS.SW_DOMO_0", "SET_VALUE", {
-            //  name: 'DEV_LIGHTS.CNT_DIMMER_1',
-            //  port: options.targetAdsPort,
-            //  value: 123
-            //});
-            return client.invokeRpcMethod("DEV_LIGHTS.SW_DOMO_0", "CALCULATE", {
-              Value1: 4,
-              Value2: 5
+            return client.invokeRpcMethod("DEV_LIGHTS.SW_DOMO_0", "SET_VALUE", {
+              name: 'SETTINGS.domo_prv',
+              port: options.targetAdsPort,
+              value: rpcValue
             });
           }) 
+          .then(() => {
+            return client.invokeRpcMethod("DEV_LIGHTS.SW_DOMO_0", "SET_VALUE", {
+              name: 'SETTINGS.domo_tst',
+              port: options.targetAdsPort,
+              value: rpcValue++
+            });
+          })
           .then((data) => {
             hrend = process.hrtime(hrstart);
             console.log(JSON.stringify(data));
