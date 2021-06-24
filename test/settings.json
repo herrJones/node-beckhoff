@@ -1,32 +1,35 @@
 {
   "plc" : {
-    "ip"     : "10.10.0.1",
+    "ip"     : "10.81.5.26",
+    "ip_"     : "127.0.0.1",
     "port"   : 48898
   },
   "remote" : {  
-    "netid"  : "5.40.120.70.1.1",      
-    "port"   : 851
+    "netid"  : "5.42.129.71.1.1", 
+    "netid__"  : "10.81.1.9.1.1", 
+    "netid_"  : "127.0.0.1.1.1",    
+    "port"   : 852
   },
   "local" : {
-    "netid"  : "10.0.0.1.1.1",
+    "netid"  : "10.81.1.9.1.2",
     "port"   : 32905
   },
   "develop" : {
     "verbose" : false,
     "debug"   : false,
-    "save"    : false,
+    "save"    : true,
     "location": ""
   },
   "readlist" : [ 
-    {"name" : "SENSORS.temp_outside"},
-    {"name" : "SENSORS.temp_inside"},
-    {"name" : "SCREENS.scrpos_big_screen"},
-    {"name" : "LIGHTS.dim_living_room"},
-    {"name" : "SENSORS.contact_front_door"}
+    {"name" : "SENSORS.temp_v0_terras"},
+    {"name" : "SENSORS.temp_v1_keuken"},
+    {"name" : "SCHERMEN.scr_v2_straatkant_pos"},
+    {"name" : "LICHTEN.sig_v1_living"},
+    {"name" : "CONTACTS.dct_v0_voordeur_c01"}
   ],
   "readlist_multi" :[
-    [{"name" : "SENSORS.temp_outside"},{"name" : "SENSORS.temp_inside"}],
-    [{"name" : "SCREENS.scrpos_big_screen"},{"name" : "LIGHTS.dim_living_room"},{"name" : "SENSORS.contact_front_door"}]
+    [{"name" : "SENSORS.temp_v0_terras"},{"name" : "SENSORS.temp_v1_keuken"}],
+    [{"name" : "SCHERMEN.scr_v2_straatkant_pos"},{"name" : "LICHTEN.sig_v1_living"},{"name" : "CONTACTS.dct_v0_voordeur_c01"}]
   ],
   "writelist" : [
     {"name" : "LIGHTS.light_outside",   "value" :   1 },
@@ -40,15 +43,10 @@
     [{"name" : "LIGHTS.dim_living_room", "value" : 10},{"name" : "LIGHTS.dim_kitchen", "value" : 70},{"name" : "LIGHTS.lgt_tabletop", "value": 1}],
     [{"name" : "LIGHTS.dim_living_room", "value" :  0},{"name" : "LIGHTS.dim_kitchen", "value" :  0},{"name" : "LIGHTS.lgt_tabletop", "value" :0}]
   ],
-  "writelist_multi" :[
-    [{"name" : "LIGHTS.dim_living_room", "value" : 10},{"name" : "LIGHTS.lgt_tabletop", "value" : 1}],
-    [{"name" : "LIGHTS.dim_living_room", "value" : 25},{"name" : "LIGHTS.lgt_tabletop", "value" : 0}],
-    [{"name" : "LIGHTS.dim_living_room", "value" :  0},{"name" : "LIGHTS.lgt_tabletop", "value" : 0}]
-  ],
   "notifylist" :[
-    [{"name" : "SENSORS.light_outside",      "mode": "cyclic",   "delay" : 15, "cycle": 5}],
-    [{"name" : "SENSORS.temp_outside",       "mode": "cyclic",   "delay" : 15, "cycle": 5},
-     {"name" : "SENSORS.temp_inside",        "mode": "cyclic",   "delay" : 15, "cycle": 5}],
-    [{"name" : "SENSORS.contact_front_door", "mode": "onchange", "delay" :  5, "cycle": 5}]
+    [{"name" : "SENSORS.light_tuin",           "mode": "cyclic",   "delay" : 15, "cycle": 5}],
+    [{"name" : "SENSORS.temp_v0_terras",       "mode": "cyclic",   "delay" : 15, "cycle": 5},
+     {"name" : "SENSORS.temp_v1_keuken",       "mode": "cyclic",   "delay" : 15, "cycle": 5}],
+    [{"name" : "CONTACTS.dct_v0_voordeur_c01", "mode": "onchange", "delay" :  5, "cycle": 5}]
   ]
 }

@@ -40,5 +40,9 @@
   "directories": {
     "lib": "lib",
     "test": "test"
+  },
+  "scripts": {
+    "test": "test/check_connect.js",
+    "lint": "eslint"
   }
 }
