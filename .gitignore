@@ -2,3 +2,4 @@ node_modules/
 *.db3
 test/node-ads-api/
 test/ads-client-master/
+.vscode/
