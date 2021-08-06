@@ -1,17 +1,12 @@
 'use strict';
 
 const readline = require('readline');
-//const ip = require('ip');
 const settings = require(__dirname + '/settings.json');
 
-//const adsa = require('node-ads');
-const adsa = require('./node-ads-api');
-//const adsc = require('ads-client');
-const adsc = require('./ads-client-master');
-
+const adsa = require('node-ads');
+const adsc = require('ads-client');
 
 const BeckhoffClient = require('../lib/beckhoff');
-const { config } = require('process');
 const beckhoff = new BeckhoffClient(settings); 
 
 const trmnl = readline.createInterface({
@@ -29,8 +24,8 @@ let symbolReadIdx = 0;
 let symbolReadMultiIdx = 0;
 let symbolWriteIdx = 0;
 let symbolWriteMultiIdx = 0;
-//let symbolStartNotifyIdx = 0;
-//let symbolStopNotifyIdx = 0;
+let symbolStartNotifyIdx = 0;
+let symbolStopNotifyIdx = 0;
 
 let options = {};
 
@@ -576,7 +571,7 @@ const waitForCommand = async function () {
         plc : settings.plc,
         remote : settings.remote,
         local : {
-          netid   : settings.local.netid, //ip.address() + '.1.1',
+          netid   : settings.local.netid,
           port    : settings.local.port
         },
         develop : settings.develop
@@ -747,7 +742,6 @@ const waitForCommand = async function () {
         const symbols = symbolWriteMultiList[symbolWriteMultiIdx];
         if (++symbolWriteMultiIdx == symbolWriteMultiList.length) symbolWriteMultiIdx = 0;
 
-        //console.log('still in testing stage - sorry...');
         hrstart = process.hrtime();
         const data = await beckhoff.writePlcData(symbols);
         hrend = process.hrtime(hrstart);
@@ -786,13 +780,12 @@ const waitForCommand = async function () {
         } else {
           const symbols = symbolNotifyList[symbolStopNotifyIdx++];
     
-          //hrstart = process.hrtime();
+          hrstart = process.hrtime();
           const data = await beckhoff.delPlcNotification(symbols);
-          //hrend = process.hrtime(hrstart);
+          hrend = process.hrtime(hrstart);
   
           console.log(JSON.stringify(data));
         }
-        
       }
       
       if (Array.isArray(hrend)) {

@@ -14,7 +14,7 @@ Although implementation is still in javascript, execution speed is gained by sto
 The drawback of this is that the application has to restart (or: re-fetch datatypes and symbols) after a PLC code-update. 
 
 Handles are stored after first use.
-When the application terminates, all handles should be cleaned
+When the application terminates, all handles are cleaned upon exit
 
 ## Commands provided
 * __getPlcInfo__  : read plc version
@@ -106,4 +106,6 @@ symbols = [
 ];
 data = await beckhoff.delPlcNotification(symbols);
 console.log(JSON.stringify(data));
+
+await beckhoff.destroy();
 ```
