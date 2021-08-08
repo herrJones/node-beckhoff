@@ -3,3 +3,4 @@ node_modules/
 test/node-ads-api/
 test/ads-client-master/
 .vscode/
+**/bak/
