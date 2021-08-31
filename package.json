@@ -1,6 +1,6 @@
 {
   "name": "node-beckhoff",
-  "version": "0.8.1",
+  "version": "0.8.4",
   "description": "AMS/ADS implementation for beckhoff PLCs",
   "main": "lib/beckhoff.js",
   "keywords": [
@@ -22,15 +22,13 @@
   "dependencies": {
     "events": "^3.1.0",
     "ip": "^1.1.5",
+    "long": "^4.0.0",
     "net": "^1.0.2",
     "safe-buffer": "^5.2.1",
-    "sqlite3": "^5.0.0"
+    "sqlite3": "^5.0.2"
   },
   "devDependencies": {
-    "ads-client": "^1.10.3",
-    "clinic": "^8.0.1",
-    "eslint": "^7.22.0",
-    "node-ads-api": "^1.4.16"
+    "eslint": "^7.13.0"
   },
   "bugs": {
     "url": "https://github.com/herrJones/node-beckhoff/issues"
