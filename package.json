@@ -28,7 +28,8 @@
     "sqlite3": "^5.0.2"
   },
   "devDependencies": {
-    "eslint": "^7.13.0"
+    "@babel/eslint-parser": "^7.15.4",
+    "eslint": "^7.32.0"
   },
   "bugs": {
     "url": "https://github.com/herrJones/node-beckhoff/issues"
