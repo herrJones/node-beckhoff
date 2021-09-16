@@ -11,7 +11,6 @@ const adsc = require('./ads-client-master');
 
 
 const BeckhoffClient = require('../lib/beckhoff');
-const { config } = require('process');
 const beckhoff = new BeckhoffClient(settings); 
 
 const trmnl = readline.createInterface({
@@ -24,6 +23,7 @@ const symbolReadMultiList = settings.readlist_multi;
 const symbolWriteList = settings.writelist;
 const symbolWriteMultiList = settings.writelist_multi;
 const symbolNotifyList = settings.notifylist;
+const symbolRpcList = settings.rpcMethodList;
 
 let symbolReadIdx = 0;
 let symbolReadMultiIdx = 0;
@@ -31,6 +31,7 @@ let symbolWriteIdx = 0;
 let symbolWriteMultiIdx = 0;
 let symbolStartNotifyIdx = 0;
 let symbolStopNotifyIdx = 0;
+let symbolRpcIdx = 0;
 
 let options = {};
 
@@ -376,7 +377,6 @@ const waitForCommand = async function () {
         routerTcpPort: settings.plc.port
       };
 
-      
       let hrstart = 0;
       let hrend = 0;
       if (answer.endsWith('?') || answer.endsWith('help')) {
@@ -454,88 +454,114 @@ const waitForCommand = async function () {
             console.log(JSON.stringify(error));
           }); 
 
-      } else if ((answer.endsWith('state') || answer.endsWith('state get'))) {
-        console.log('command: ADS-CLIENT DEVICE STATE');
-        const client = new adsc.Client(options);
-        
-        hrstart = process.hrtime();
-        await client.connect()
-          .then(async () => {
-            const sysState = await client.readSystemManagerState();
-            const plcState = await  client.readPlcRuntimeState();
-            return sysState + plcState;
-          }) 
-          .then((data) => {
-            hrend = process.hrtime(hrstart);
-            console.log(JSON.stringify(data));
+      } else if (answer.includes(' state ', 3)) {
+        if (answer.endsWith('get')) {
+          console.log('command: ADS-CLIENT DEVICE STATE');
+          const client = new adsc.Client(options);
+          
+          hrstart = process.hrtime();
+          await client.connect()
+            .then(async () => {
+              const sysState = await client.readSystemManagerState();
+              const plcState = await  client.readPlcRuntimeState();
+              return sysState + plcState;
+            }) 
+            .then((data) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(data));
+  
+              return client.disconnect();
+            })
+            .catch(async (error) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(error));
+  
+              client.disconnect();
+  
+            });
+        } else if (answer.endsWith('start')) {
+          console.log('command: ADS-CLIENT START PLC');
+          const client = new adsc.Client(options);
+          
+          hrstart = process.hrtime();
+          await client.connect()
+            .then(() => {
+              client.setDebugging(4);
+              return client.startPlc(options.targetAdsPort);
+            }) 
+            .then((data) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(data));
 
-            return client.disconnect();
-          })
-          .catch(async (error) => {
-            hrend = process.hrtime(hrstart);
-            console.log(JSON.stringify(error));
-
-            client.disconnect();
-
-          });
-
-      } else if (answer.endsWith('state stop')) {
-        console.log('command: ADS-CLIENT STOP PLC');
-        const client = new adsc.Client(options);
-        
-        hrstart = process.hrtime();
-        await client.connect()
-          .then(() => {
-            return client.stop(options.targetAdsPort);
-          }) 
-          .then((data) => {
-            hrend = process.hrtime(hrstart);
-            console.log(JSON.stringify(data));
-
-            return client.disconnect();
-          })
-          .catch((error) => {
-            hrend = process.hrtime(hrstart);
-            console.log(JSON.stringify(error));
-          });
-      } else if (answer.endsWith('state start')) {
-        console.log('command: ADS-CLIENT START PLC');
-        const client = new adsc.Client(options);
-        
-        hrstart = process.hrtime();
-        await client.connect()
-          .then(() => {
-            return client.startPlc(options.targetAdsPort);
-          }) 
-          .then((data) => {
-            hrend = process.hrtime(hrstart);
-            console.log(JSON.stringify(data));
-
-            return client.disconnect();
-          })
-          .catch((error) => {
-            hrend = process.hrtime(hrstart);
-            console.log(JSON.stringify(error));
-          });
-      } else if (answer.endsWith('state config')) {
-        console.log('command: ADS-CLIENT SET DEVICE IN CONFIG STATE');
-        const client = new adsc.Client(options);
-        
-        hrstart = process.hrtime();
-        await client.connect()
-          .then(() => {
-            return client.setSystemManagerToConfig();
-          }) 
-          .then((data) => {
-            hrend = process.hrtime(hrstart);
-            console.log(JSON.stringify(data));
-
-            return client.disconnect();
-          })
-          .catch((error) => {
-            hrend = process.hrtime(hrstart);
-            console.log(JSON.stringify(error));
-          });
+              client.setDebugging(1);
+  
+              return client.disconnect();
+            })
+            .catch((error) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(error));
+            });
+        } else if (answer.endsWith('stop')) {
+          console.log('command: ADS-CLIENT STOP PLC');
+          const client = new adsc.Client(options);
+          
+          hrstart = process.hrtime();
+          await client.connect()
+            .then(() => {
+              client.setDebugging(4);
+              return client.stop(options.targetAdsPort);
+            }) 
+            .then((data) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(data));
+              client.setDebugging(1);
+              return client.disconnect();
+            })
+            .catch((error) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(error));
+            });
+        } else if (answer.endsWith('config')) {
+          console.log('command: ADS-CLIENT SET DEVICE IN CONFIG STATE');
+          const client = new adsc.Client(options);
+          
+          hrstart = process.hrtime();
+          await client.connect()
+            .then(() => {
+              client.setDebugging(4);
+              return client.setSystemManagerToConfig();
+            }) 
+            .then((data) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(data));
+              client.setDebugging(1);
+              return client.disconnect();
+            })
+            .catch((error) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(error));
+            });
+        } else if (answer.endsWith('activate')) {
+          console.log('command: ADS-CLIENT SET DEVICE IN ACTIVE STATE');
+          const client = new adsc.Client(options);
+          
+          hrstart = process.hrtime();
+          await client.connect()
+            .then(() => {
+              client.setDebugging(4);
+              return client.setSystemManagerToRun();
+            }) 
+            .then((data) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(data));
+              client.setDebugging(1);
+              return client.disconnect();
+            })
+            .catch((error) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(error));
+            });
+        }
       } else if (answer.endsWith('rpc')) {
         console.log('command: ADS-CLIENT CALL RPC METHOD');
         const client = new adsc.Client(options);
@@ -543,23 +569,26 @@ const waitForCommand = async function () {
         hrstart = process.hrtime();
         await client.connect()
           .then(() => {
-            return client.invokeRpcMethod("DEV_LIGHTS.SW_DOMO_0", "SET_VALUE", {
-              name: 'SETTINGS.domo_prv',
-              port: options.targetAdsPort,
+            const currRpcMethod = symbolRpcList[symbolRpcIdx];
+            rpcValue = currRpcMethod.value;
+
+            if (++symbolRpcIdx == 4) symbolRpcIdx = 0;
+
+            client.setDebugging(2);
+            return client.invokeRpcMethod(currRpcMethod.name, currRpcMethod.method, {
               value: rpcValue
             });
           }) 
-          .then(() => {
-            return client.invokeRpcMethod("DEV_LIGHTS.SW_DOMO_0", "SET_VALUE", {
-              name: 'SETTINGS.domo_tst',
-              port: options.targetAdsPort,
-              value: rpcValue++
-            });
-          })
           .then((data) => {
             hrend = process.hrtime(hrstart);
             console.log(JSON.stringify(data));
 
+            if (rpcValue == 1) {
+              rpcValue = 0;
+            } else {
+              rpcValue = 1;
+            }
+            client.setDebugging(1);
             return client.disconnect();
           })
           .catch((error) => {
@@ -754,46 +783,46 @@ const waitForCommand = async function () {
 
         console.log(JSON.stringify(data));
 
-      } else if (answer.endsWith('notify start')) {
-        console.log('command: BECKHOFF START NOTIFYING SYMBOL');
+      } else if (answer.includes(' notify ', 3)) {
+        if (answer.endsWith('start')) {
+          console.log('command: BECKHOFF START NOTIFYING SYMBOL');
 
-        options.develop.verbose = false;
-        options.develop.debug = false;
-        beckhoff.settings = options;
-
-        if (symbolStartNotifyIdx >= symbolNotifyList.length) {
-          console.log('all notifications are active');
-        } else {
-          const symbols = symbolNotifyList[symbolStartNotifyIdx++];
-    
-          hrstart = process.hrtime();
-          const data = await beckhoff.addPlcNotification(symbols);
-          hrend = process.hrtime(hrstart);
-
-          console.log(JSON.stringify(data));
-        }
-        
-
-      } else if (answer.endsWith('notify stop')) {
-        console.log('command: BECKHOFF STOP NOTIFYING SYMBOL');
-
-        options.develop.verbose = false;
-        options.develop.debug = false;
-        beckhoff.settings = options;
-
-        if (symbolStopNotifyIdx >= symbolNotifyList.length) {
-          console.log('all notifications are deleted');
-        } else {
-          const symbols = symbolNotifyList[symbolStopNotifyIdx++];
-    
-          //hrstart = process.hrtime();
-          const data = await beckhoff.delPlcNotification(symbols);
-          //hrend = process.hrtime(hrstart);
+          options.develop.verbose = false;
+          options.develop.debug = false;
+          beckhoff.settings = options;
   
-          console.log(JSON.stringify(data));
+          if (symbolStartNotifyIdx >= symbolNotifyList.length) {
+            console.log('all notifications are active');
+          } else {
+            const symbols = symbolNotifyList[symbolStartNotifyIdx++];
+      
+            hrstart = process.hrtime();
+            const data = await beckhoff.addPlcNotification(symbols);
+            hrend = process.hrtime(hrstart);
+  
+            console.log(JSON.stringify(data));
+          }
+          
+        } else if (answer.endsWith('stop')) {
+          console.log('command: BECKHOFF STOP NOTIFYING SYMBOL');
+
+          options.develop.verbose = false;
+          options.develop.debug = false;
+          beckhoff.settings = options;
+  
+          if (symbolStopNotifyIdx >= symbolNotifyList.length) {
+            console.log('all notifications are deleted');
+          } else {
+            const symbols = symbolNotifyList[symbolStopNotifyIdx++];
+      
+            hrstart = process.hrtime();
+            const data = await beckhoff.delPlcNotification(symbols);
+            hrend = process.hrtime(hrstart);
+    
+            console.log(JSON.stringify(data));
+          }
         }
-        
-      }
+      } 
       
       if (Array.isArray(hrend)) {
         console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
