@@ -1,13 +1,13 @@
 {
   "plc" : {
-    "ip"     : "10.81.5.26",
-    "ip_"     : "127.0.0.1",
+    "ip_"     : "10.81.5.26",
+    "ip"     : "127.0.0.1",
     "port"   : 48898
   },
   "remote" : {  
-    "netid"  : "5.42.129.71.1.1", 
-    "netid__"  : "10.81.1.9.1.1", 
-    "netid_"  : "127.0.0.1.1.1",    
+    "netid_"  : "5.42.129.71.1.1", 
+    "netid"  : "10.81.1.9.1.1", 
+    "netid__"  : "127.0.0.1.1.1",    
     "port"   : 852
   },
   "local" : {
@@ -18,7 +18,7 @@
     "verbose" : false,
     "debug"   : false,
     "save"    : true,
-    "location": ""
+    "location": "C:\\Users\\Jan\\Projects\\node-beckhoff\\test"
   },
   "readlist" : [ 
     {"name" : "SENSORS.temp_v0_terras"},
@@ -38,15 +38,21 @@
     {"name" : "LIGHTS.dim_living_room", "value" : 100 },
     {"name" : "LIGHTS.dim_living_room", "value" :   0 }
   ],
-  "writelist_multi" :[
+  "writelist_multi" : [
     [{"name" : "LIGHTS.dim_living_room", "value" : 25},{"name" : "LIGHTS.dim_kitchen", "value" : 40}],
     [{"name" : "LIGHTS.dim_living_room", "value" : 10},{"name" : "LIGHTS.dim_kitchen", "value" : 70},{"name" : "LIGHTS.lgt_tabletop", "value": 1}],
     [{"name" : "LIGHTS.dim_living_room", "value" :  0},{"name" : "LIGHTS.dim_kitchen", "value" :  0},{"name" : "LIGHTS.lgt_tabletop", "value" :0}]
   ],
-  "notifylist" :[
+  "notifylist" : [
     [{"name" : "SENSORS.light_tuin",           "mode": "cyclic",   "delay" : 15, "cycle": 5}],
     [{"name" : "SENSORS.temp_v0_terras",       "mode": "cyclic",   "delay" : 15, "cycle": 5},
      {"name" : "SENSORS.temp_v1_keuken",       "mode": "cyclic",   "delay" : 15, "cycle": 5}],
     [{"name" : "CONTACTS.dct_v0_voordeur_c01", "mode": "onchange", "delay" :  5, "cycle": 5}]
+  ],
+  "rpcMethodList" : [
+    {"name" : "DEV_LIGHTS.CMB_SIMPLE_0_X1", "method" : "SET_VALUE", "parm" : {"value" : 1}},
+    {"name" : "DEV_LIGHTS.CMB_SIMPLE_0_X1", "method" : "SET_VALUE", "parm" : {"value" : 1}},
+    {"name" : "DEV_LIGHTS.CMB_DIMMER_1", "method" : "SET_VALUE", "parm" : {"value" : 75}},
+    {"name" : "DEV_LIGHTS.CMB_DIMMER_1", "method" : "SET_VALUE", "parm" : {"value" : 0}}
   ]
 }

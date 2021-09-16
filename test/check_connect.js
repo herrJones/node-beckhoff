@@ -23,6 +23,7 @@ const symbolReadMultiList = settings.readlist_multi;
 const symbolWriteList = settings.writelist;
 const symbolWriteMultiList = settings.writelist_multi;
 const symbolNotifyList = settings.notifylist;
+const symbolRpcList = settings.rpcMethodList;
 
 let symbolReadIdx = 0;
 let symbolReadMultiIdx = 0;
@@ -30,6 +31,7 @@ let symbolWriteIdx = 0;
 let symbolWriteMultiIdx = 0;
 let symbolStartNotifyIdx = 0;
 let symbolStopNotifyIdx = 0;
+let symbolRpcIdx = 0;
 
 let options = {};
 
@@ -567,16 +569,16 @@ const waitForCommand = async function () {
         hrstart = process.hrtime();
         await client.connect()
           .then(() => {
-            client.setDebugging(4);
-            return client.invokeRpcMethod('DEV_LIGHTS.CMB_SIMPLE_0_X1', 'SET_VALUE', {
+            const currRpcMethod = symbolRpcList[symbolRpcIdx];
+            rpcValue = currRpcMethod.value;
+
+            if (++symbolRpcIdx == 4) symbolRpcIdx = 0;
+
+            client.setDebugging(2);
+            return client.invokeRpcMethod(currRpcMethod.name, currRpcMethod.method, {
               value: rpcValue
             });
           }) 
-          //.then(() => {
-          //  return client.invokeRpcMethod("DEV_LIGHTS.CMB_SIMPLE_1_X1", "SET_VALUE", {
-          //    value: rpcValue
-          //  });
-          //})
           .then((data) => {
             hrend = process.hrtime(hrstart);
             console.log(JSON.stringify(data));
