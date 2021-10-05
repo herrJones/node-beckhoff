@@ -625,9 +625,11 @@ const waitForCommand = async function () {
                     'bkhf write        -- write plc symbol value\n' +
                     'bkhf writemulti   -- write multiple plc symbol values\n' +
                     'bkhf notify start -- get notifications from a plc symbol value\n' +
-                    'bkhf notify stop  -- stop getting notifications from a plc symbol value');
+                    'bkhf notify stop  -- stop getting notifications from a plc symbol value\n' +
+                    'bkhf rpc info     -- get info on RPC methods available\n' +
+                    'bkhf rpc call     -- call RPC methods');
         
-      } else if (answer.endsWith('info')) {
+      } else if (answer.endsWith('info') && !answer.includes(('rpc'))) {
         console.log('command: BECKHOFF DEVICE INFO');
         
         options.develop.verbose = false;
@@ -822,7 +824,23 @@ const waitForCommand = async function () {
             console.log(JSON.stringify(data));
           }
         }
-      } 
+      } else if (answer.includes(' rpc ', 3)) {
+        if (answer.endsWith('info')) {
+          
+          hrstart = process.hrtime();
+          beckhoff.getRpcMethodInfo([])
+            .then((data) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(data));
+            })
+            .catch((error) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(error));
+            }); 
+        } else if (answer.endsWith('call')) {
+
+        }
+      }
       
       if (Array.isArray(hrend)) {
         console.info('Execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
