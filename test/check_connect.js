@@ -572,7 +572,7 @@ const waitForCommand = async function () {
             const currRpcMethod = symbolRpcList[symbolRpcIdx];
             rpcValue = currRpcMethod.value;
 
-            if (++symbolRpcIdx == 4) symbolRpcIdx = 0;
+            if (++symbolRpcIdx == 2) symbolRpcIdx = 0;
 
             client.setDebugging(2);
             return client.invokeRpcMethod(currRpcMethod.name, currRpcMethod.method, {
@@ -826,7 +826,7 @@ const waitForCommand = async function () {
         }
       } else if (answer.includes(' rpc ', 3)) {
         if (answer.endsWith('info')) {
-          
+
           hrstart = process.hrtime();
           beckhoff.getRpcMethodInfo([])
             .then((data) => {
@@ -839,6 +839,21 @@ const waitForCommand = async function () {
             }); 
         } else if (answer.endsWith('call')) {
 
+          const currRpcMethod = symbolRpcList[symbolRpcIdx];
+          //rpcValue = currRpcMethod.value;
+
+          if (++symbolRpcIdx == 2) symbolRpcIdx = 0;
+
+          hrstart = process.hrtime();
+          /*await*/ beckhoff.callPlcRpcMethod([currRpcMethod])
+            .then((data) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(data));
+            })
+            .catch((error) => {
+              hrend = process.hrtime(hrstart);
+              console.log(JSON.stringify(error));
+            });
         }
       }
       
