@@ -842,10 +842,10 @@ const waitForCommand = async function () {
           const currRpcMethod = symbolRpcList[symbolRpcIdx];
           //rpcValue = currRpcMethod.value;
 
-          if (++symbolRpcIdx == 2) symbolRpcIdx = 0;
+          if (++symbolRpcIdx == symbolRpcList.length) symbolRpcIdx = 0;
 
           hrstart = process.hrtime();
-          /*await*/ beckhoff.callPlcRpcMethod([currRpcMethod])
+          await beckhoff.callPlcRpcMethod([currRpcMethod])
             .then((data) => {
               hrend = process.hrtime(hrstart);
               console.log(JSON.stringify(data));
