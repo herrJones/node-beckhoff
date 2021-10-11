@@ -54,5 +54,7 @@
     {"name" : "LICHTEN.CMB_V2_TECHNIEKEN", "method" : "SET_VALUE", "parm_in" : {"parm" : "value", "value" : 0}},
     {"name" : "LICHTEN.CMB_V1_TAFEL_DIM",  "method" : "SET_VALUE", "parm_in" : {"parm" : "value", "value" : 75}},
     {"name" : "LICHTEN.CMB_V1_TAFEL_DIM",  "method" : "SET_VALUE", "parm_in" : {"parm" : "value", "value" : 0}}
+    {"name" : "DEV_SCREENS.COMBINE_SCRN_0", "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 75},{"parm": "value", "value": 0}]},
+    {"name" : "DEV_SCREENS.COMBINE_SCRN_0", "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 0} ,{"parm": "value", "value": 1}]}
   ]
 }

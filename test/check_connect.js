@@ -843,6 +843,11 @@ const waitForCommand = async function () {
           //rpcValue = currRpcMethod.value;
 
           if (++symbolRpcIdx == symbolRpcList.length) symbolRpcIdx = 0;
+          //if (++symbolRpcIdx == 4) symbolRpcIdx = 2;
+
+          options.develop.verbose = false;
+          options.develop.debug = true;
+          beckhoff.settings = options;
 
           hrstart = process.hrtime();
           await beckhoff.callPlcRpcMethod([currRpcMethod])
