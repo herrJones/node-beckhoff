@@ -11,10 +11,11 @@ The calls exposed to the user side provide Promises
 
 ## Faster handling
 Although implementation is still in javascript, execution speed is gained by storing fixed blocks of data (header) and storing handles in a SQLite database (default choice = in-memory)(storing on-disk is also possible but may have performance penalties, depending on the kind of storage used ).
-The drawback of this is that the application has to restart (or: re-fetch the basic data) after a PLC code-update. 
+
+The drawback of this is that the application has to restart (or: re-fetch datatypes and symbols) after a PLC code-update. 
 
 Handles are stored after first use.
-When the application terminates, all handles should be cleaned _(unstable for now)_
+When the application terminates, all handles are cleaned upon exit
 
 ## Commands provided
 * __getPlcInfo__  : read plc version
@@ -30,11 +31,15 @@ When the application terminates, all handles should be cleaned _(unstable for no
   _-> multiple symbols allowed_
   _-> handles are fetched automatically upon read/write/notify_
 * __addPlcNotification__ : add a notification for a specific symbol
-  _-> multiple symbol notifications are planned_
+  _-> multiple symbols allowed_
 * __delPlcNotification__ : remove notifications for a specific symbol
   _-> multiple symbols allowed_
+* __getRpcMethodInfo__ : fetch info about rpc methods provided
+  _-> only 1 method allowed per call_
+  _-> this requires updated plc datatypes and symbols_
+* __callPlcRpcMethod__ : call an rpc method on the plc
+  _-> only 1 method allowed per call_
 * __destroy__ : close connection to th PLC. Free used symbol + notify handles.
-
 
 ## Example application
 A sample console application is provided.
@@ -104,4 +109,18 @@ symbols = [
 ];
 data = await beckhoff.delPlcNotification(symbols);
 console.log(JSON.stringify(data));
+
+// in order to know the syntax for rpc calls on your plc,
+// first do a 'getRpcMethodInfo' call
+rpcCall = [
+  {
+    "name" : "LIGHTS.lgt_tabletop",
+    "method" : "SET_VALUE", 
+    "parm_in" : [{"parm" : "value", "value" : 1}]
+  }
+];
+data = await beckhoff.callPlcRpcMethod(rpcCall);
+console.log(JSON.stringify(data));
+
+await beckhoff.destroy();
 ```

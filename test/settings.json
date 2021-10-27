@@ -40,13 +40,18 @@
     [{"name" : "LIGHTS.dim_living_room", "value" : 10},{"name" : "LIGHTS.dim_kitchen", "value" : 70},{"name" : "LIGHTS.lgt_tabletop", "value": 1}],
     [{"name" : "LIGHTS.dim_living_room", "value" :  0},{"name" : "LIGHTS.dim_kitchen", "value" :  0},{"name" : "LIGHTS.lgt_tabletop", "value" :0}]
   ],
-  "writelist_multi" :[
-    [{"name" : "LIGHTS.dim_living_room", "value" : 10},{"name" : "LIGHTS.lgt_tabletop", "value" : 1}],
-    [{"name" : "LIGHTS.dim_living_room", "value" : 25},{"name" : "LIGHTS.lgt_tabletop", "value" : 0}],
-    [{"name" : "LIGHTS.dim_living_room", "value" :  0},{"name" : "LIGHTS.lgt_tabletop", "value" : 0}],
-  ],
   "notifylist" :[
-    {"name" : "SENSORS.temp_inside",        "mode": "cyclic",   "delay" : 5, "cycle": 30},
-    {"name" : "SENSORS.contact_front_door", "mode": "onchange", "delay" : 5, "cycle": 5}
+    [{"name" : "SENSORS.light_outside",      "mode": "cyclic",   "delay" : 15, "cycle": 5}],
+    [{"name" : "SENSORS.temp_outside",       "mode": "cyclic",   "delay" : 15, "cycle": 5},
+     {"name" : "SENSORS.temp_inside",        "mode": "cyclic",   "delay" : 15, "cycle": 5}],
+    [{"name" : "SENSORS.contact_front_door", "mode": "onchange", "delay" :  5, "cycle": 5}]
+  ],
+  "rpcMethodList" : [
+    {"name" : "LIGHTS.lgt_tabletop",    "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 1}]},
+    {"name" : "LIGHTS.lgt_tabletop",    "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 0}]},
+    {"name" : "LIGHTS.dim_living_room", "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 75}]},
+    {"name" : "LIGHTS.dim_living_room", "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 0}]},
+    {"name" : "SCREENS.scr_big_screen", "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 75},{"parm": "auto", "value": 0}]},
+    {"name" : "SCREENS.scr_big_screen", "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 0} ,{"parm": "auto", "value": 1}]}
   ]
 }
