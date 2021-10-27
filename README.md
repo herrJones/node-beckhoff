@@ -11,7 +11,6 @@ The calls exposed to the user side provide Promises
 
 ## Faster handling
 Although implementation is still in javascript, execution speed is gained by storing fixed blocks of data (header) and storing handles in a SQLite database (default choice = in-memory)(storing on-disk is also possible but may have performance penalties, depending on the kind of storage used ).
-
 The drawback of this is that the application has to restart (or: re-fetch datatypes and symbols) after a PLC code-update. 
 
 Handles are stored after first use.
@@ -23,6 +22,8 @@ When the application terminates, all handles are cleaned upon exit
 * __getPlcSymbols__ : read the list of plc symbols 
   _-> this step is necessary in order to read and write individual symbols_
 * __getPlcDataTypes__ : read the list of plc datatypes
+  _-> RPC functions are also being fetched_
+  _  (they can be used to execute functions rather than write data (still TODO))_
 * __readPlcData__ : read the current value of a (list of) specified symbol(s) 
   _-> multiple symbols allowed_
 * __writePlcData__ : set the value of a specified symbol 

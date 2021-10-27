@@ -1,14 +1,10 @@
 'use strict';
 
 const readline = require('readline');
-//const ip = require('ip');
 const settings = require(__dirname + '/settings.json');
 
-//const adsa = require('node-ads');
-const adsa = require('./node-ads-api');
-//const adsc = require('ads-client');
-const adsc = require('./ads-client-master');
-
+const adsa = require('node-ads');
+const adsc = require('ads-client');
 
 const BeckhoffClient = require('../lib/beckhoff');
 const beckhoff = new BeckhoffClient(settings); 
@@ -29,14 +25,10 @@ let symbolReadIdx = 0;
 let symbolReadMultiIdx = 0;
 let symbolWriteIdx = 0;
 let symbolWriteMultiIdx = 0;
-<<<<<<< HEAD
-//let symbolStartNotifyIdx = 0;
-//let symbolStopNotifyIdx = 0;
-=======
+
 let symbolStartNotifyIdx = 0;
 let symbolStopNotifyIdx = 0;
 let symbolRpcIdx = 0;
->>>>>>> develop
 
 let options = {};
 
@@ -610,7 +602,7 @@ const waitForCommand = async function () {
         plc : settings.plc,
         remote : settings.remote,
         local : {
-          netid   : settings.local.netid, //ip.address() + '.1.1',
+          netid   : settings.local.netid,
           port    : settings.local.port
         },
         develop : settings.develop
@@ -783,7 +775,6 @@ const waitForCommand = async function () {
         const symbols = symbolWriteMultiList[symbolWriteMultiIdx];
         if (++symbolWriteMultiIdx == symbolWriteMultiList.length) symbolWriteMultiIdx = 0;
 
-        //console.log('still in testing stage - sorry...');
         hrstart = process.hrtime();
         const data = await beckhoff.writePlcData(symbols);
         hrend = process.hrtime(hrstart);
@@ -854,6 +845,7 @@ const waitForCommand = async function () {
           options.develop.debug = true;
           beckhoff.settings = options;
 
+<<<<<<< HEAD
           hrstart = process.hrtime();
           await beckhoff.callPlcRpcMethod([currRpcMethod])
             .then((data) => {
@@ -864,6 +856,18 @@ const waitForCommand = async function () {
               hrend = process.hrtime(hrstart);
               console.log(JSON.stringify(error));
             });
+=======
+        if (symbolStopNotifyIdx >= symbolNotifyList.length) {
+          console.log('all notifications are deleted');
+        } else {
+          const symbols = symbolNotifyList[symbolStopNotifyIdx++];
+    
+          hrstart = process.hrtime();
+          const data = await beckhoff.delPlcNotification(symbols);
+          hrend = process.hrtime(hrstart);
+  
+          console.log(JSON.stringify(data));
+>>>>>>> e2b63f5f0fabfcbe895da3f9b0d5adedd082baeb
         }
       }
       
