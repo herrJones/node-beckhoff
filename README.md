@@ -35,6 +35,11 @@ When the application terminates, all handles are cleaned upon exit
   _-> multiple symbols allowed_
 * __delPlcNotification__ : remove notifications for a specific symbol
   _-> multiple symbols allowed_
+* __getRpcMethodInfo__ : fetch info about rpc methods provided
+  _-> only 1 method allowed per call_
+  _-> this requires updated plc datatypes and symbols_
+* __callPlcRpcMethod__ : call an rpc method on the plc
+  _-> only 1 method allowed per call_
 * __destroy__ : close connection to th PLC. Free used symbol + notify handles.
 
 
@@ -105,6 +110,18 @@ symbols = [
   {name : "SENSORS.contact_front_door"}
 ];
 data = await beckhoff.delPlcNotification(symbols);
+console.log(JSON.stringify(data));
+
+// in order to know the syntax for rpc calls on your plc,
+// first do a 'getRpcMethodInfo' call
+rpcCall = [
+  {
+    "name" : "LIGHTS.lgt_tabletop",
+    "method" : "SET_VALUE", 
+    "parm_in" : [{"parm" : "value", "value" : 1}]
+  }
+];
+data = await beckhoff.callPlcRpcMethod(rpcCall);
 console.log(JSON.stringify(data));
 
 await beckhoff.destroy();
