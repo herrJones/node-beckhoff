@@ -828,7 +828,7 @@ const waitForCommand = async function () {
         if (answer.endsWith('info')) {
 
           hrstart = process.hrtime();
-          beckhoff.getRpcMethodInfo([])
+          await beckhoff.getRpcMethodInfo([])
             .then((data) => {
               hrend = process.hrtime(hrstart);
               console.log(JSON.stringify(data));
