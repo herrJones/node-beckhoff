@@ -1,6 +1,6 @@
 {
   "name": "node-beckhoff",
-  "version": "0.8.4",
+  "version": "0.9.1",
   "description": "AMS/ADS implementation for beckhoff PLCs",
   "main": "lib/beckhoff.js",
   "keywords": [

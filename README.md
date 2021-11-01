@@ -42,7 +42,6 @@ When the application terminates, all handles are cleaned upon exit
   _-> only 1 method allowed per call_
 * __destroy__ : close connection to th PLC. Free used symbol + notify handles.
 
-
 ## Example application
 A sample console application is provided.
 This shows the (different) approach for node-ads users and will help new users get started.
@@ -103,7 +102,6 @@ symbols = [
   {name : "SENSORS.contact_front_door", mode: "onchange", delay : 5, cycle: 5}
 ];
 data = await beckhoff.addPlcNotification(symbols);
-<<<<<<< HEAD
 console.log(JSON.stringify(data));
 
 symbols = [
@@ -111,9 +109,6 @@ symbols = [
   {name : "SENSORS.contact_front_door"}
 ];
 data = await beckhoff.delPlcNotification(symbols);
-console.log(JSON.stringify(data));
-
-=======
 console.log(JSON.stringify(data));
 
 symbols = [
@@ -135,6 +130,5 @@ rpcCall = [
 data = await beckhoff.callPlcRpcMethod(rpcCall);
 console.log(JSON.stringify(data));
 
->>>>>>> develop
 await beckhoff.destroy();
 ```

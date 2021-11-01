@@ -25,6 +25,7 @@ let symbolReadIdx = 0;
 let symbolReadMultiIdx = 0;
 let symbolWriteIdx = 0;
 let symbolWriteMultiIdx = 0;
+
 let symbolStartNotifyIdx = 0;
 let symbolStopNotifyIdx = 0;
 let symbolRpcIdx = 0;
