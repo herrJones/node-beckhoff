@@ -20,14 +20,17 @@
     "url": "git+https://github.com/herrJones/node-beckhoff.git"
   },
   "dependencies": {
+    "ads-client": "^1.11.3",
     "events": "^3.1.0",
     "ip": "^1.1.5",
+    "long": "^4.0.0",
     "net": "^1.0.2",
     "safe-buffer": "^5.2.1",
-    "sqlite3": "^5.0.0"
+    "sqlite3": "^5.0.2"
   },
   "devDependencies": {
-    "eslint": "^7.13.0"
+    "@babel/eslint-parser": "^7.15.4",
+    "eslint": "^7.32.0"
   },
   "bugs": {
     "url": "https://github.com/herrJones/node-beckhoff/issues"

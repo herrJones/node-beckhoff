@@ -2,23 +2,25 @@
   "plc" : {
     "ip"     : "10.81.5.26",
     "ip_"     : "127.0.0.1",
+    "ip__"     : "10.81.1.9",
     "port"   : 48898
   },
   "remote" : {  
     "netid"  : "5.42.129.71.1.1", 
-    "netid__"  : "10.81.1.9.1.1", 
-    "netid_"  : "127.0.0.1.1.1",    
+    "netid_"  : "10.81.1.9.1.1", 
+    "netid__"  : "127.0.0.1.1.1",    
     "port"   : 852
   },
   "local" : {
-    "netid"  : "10.81.1.9.1.2",
-    "port"   : 32905
+    "netid"  : "10.81.1.9.1.1",
+    "port"   : 32906,
+    "port__"   : 48898
   },
   "develop" : {
     "verbose" : false,
     "debug"   : false,
     "save"    : true,
-    "location": ""
+    "location": "C:\\Users\\Jan\\source\\node-beckhoff\\test"
   },
   "readlist" : [ 
     {"name" : "SENSORS.temp_v0_terras"},
@@ -38,15 +40,26 @@
     {"name" : "LIGHTS.dim_living_room", "value" : 100 },
     {"name" : "LIGHTS.dim_living_room", "value" :   0 }
   ],
-  "writelist_multi" :[
+  "writelist_multi" : [
     [{"name" : "LIGHTS.dim_living_room", "value" : 25},{"name" : "LIGHTS.dim_kitchen", "value" : 40}],
     [{"name" : "LIGHTS.dim_living_room", "value" : 10},{"name" : "LIGHTS.dim_kitchen", "value" : 70},{"name" : "LIGHTS.lgt_tabletop", "value": 1}],
     [{"name" : "LIGHTS.dim_living_room", "value" :  0},{"name" : "LIGHTS.dim_kitchen", "value" :  0},{"name" : "LIGHTS.lgt_tabletop", "value" :0}]
   ],
-  "notifylist" :[
+  "notifylist" : [
     [{"name" : "SENSORS.light_tuin",           "mode": "cyclic",   "delay" : 15, "cycle": 5}],
     [{"name" : "SENSORS.temp_v0_terras",       "mode": "cyclic",   "delay" : 15, "cycle": 5},
      {"name" : "SENSORS.temp_v1_keuken",       "mode": "cyclic",   "delay" : 15, "cycle": 5}],
     [{"name" : "CONTACTS.dct_v0_voordeur_c01", "mode": "onchange", "delay" :  5, "cycle": 5}]
+  ],
+  "rpcMethodList" : [
+    {"name" : "LICHTEN.CMB_V2_TECHNIEKEN",  "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 1}]},
+    {"name" : "LICHTEN.CMB_V2_TECHNIEKEN",  "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 0}]},
+    {"name" : "LICHTEN.CMB_V1_LIVING_DIM",  "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 75}]},
+    {"name" : "LICHTEN.CMB_V1_LIVING_DIM",  "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 0}]},
+    {"name" : "LICHTEN.CMB_V2_TRAP",        "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 1}, {"parm": "mode", "value": 1}]},
+    {"name" : "LICHTEN.CMB_V2_TRAP",        "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 0}, {"parm": "mode", "value": 2}]},
+    {"name" : "LICHTEN.CMB_V2_TRAP",        "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 0}, {"parm": "mode", "value": 0}]},
+    {"name" : "SCHERMEN.CMB_V2_SCR_BUREAU", "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 75},{"parm": "auto", "value": 0}]},
+    {"name" : "SCHERMEN.CMB_V2_SCR_BUREAU", "method" : "SET_VALUE", "parm_in" : [{"parm" : "value", "value" : 0} ,{"parm": "auto", "value": 1}]}
   ]
 }

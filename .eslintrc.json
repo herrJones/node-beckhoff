@@ -4,6 +4,8 @@
       "node": true,
       "mocha": true
   },
+  "parser": "@babel/eslint-parser",
+  
   "extends": [
      // "standard"
       "eslint:recommended"
@@ -33,6 +35,7 @@
       ]
   },
   "parserOptions": {
-      "ecmaVersion": 2021
+    "requireConfigFile": false,
+    "ecmaVersion": 2021
   }
 }
